@@ -198,7 +198,12 @@ nav.tabs a small{display:block;font-size:10px;font-weight:400;opacity:.75;letter
 .toggles{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--stone)}
 .toggles button{border:1px solid var(--line);background:none;border-radius:999px;padding:3px 10px;font-size:14px}
 .toggles button[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);font-weight:700}
-.nopy .py,.nopy .cpy{display:none!important}
+.nopy .py{display:none!important}
+#auditbar{position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:50;background:var(--ink);color:var(--paper);border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.45;display:none}
+body.audit #auditbar{display:block}
+body.audit .play[data-src="rec"]{outline:3px solid #2E9E6B;outline-offset:2px}
+body.audit .play[data-src="tts"]{outline:3px dashed #E8731A;outline-offset:2px}
+#view-chinese.nopyc .cpy{display:none!important}
 .crow{padding:14px 0;border-bottom:1px solid var(--line);display:grid;gap:2px}
 .cmain{display:flex;align-items:center;gap:10px}
 .chz{font-size:28px;font-weight:700;line-height:1.25}
@@ -207,6 +212,7 @@ nav.tabs a small{display:block;font-size:10px;font-weight:400;opacity:.75;letter
 .cen{font-weight:500}
 .csw{display:flex;align-items:center;gap:8px;color:var(--stone);font-size:14px;margin-top:4px;flex-wrap:wrap}
 .opt .chz{font-size:24px}
+.cnote{color:var(--stone);font-size:14px;line-height:1.45}
 
 /* mine */
 .starbtn{border:none;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--stone);padding:0 4px;vertical-align:middle}
@@ -258,6 +264,7 @@ nav.tabs a small{display:block;font-size:10px;font-weight:400;opacity:.75;letter
     </div>
     <div class="toggles" role="group" aria-label="拼音 Pinyin">
       <button type="button" id="pyBtn" aria-pressed="true">拼音 Pinyin</button>
+      <button type="button" id="audBtn" aria-pressed="false">音源檢查</button>
     </div>
   </div>
 </header>
@@ -309,10 +316,13 @@ nav.tabs a small{display:block;font-size:10px;font-weight:400;opacity:.75;letter
       <h1>Learn Traditional Chinese</h1>
       <p>Traditional characters, pinyin and Taiwanese Mandarin pronunciation. Tap a green button to hear Taiwanese Mandarin; red buttons play Swiss German. Pinyin uses standard tone marks, while spoken Taiwan Mandarin sometimes differs slightly (for example in neutral tones).</p>
     </div>
-    <div class="deck" id="cdeck" role="group" aria-label="Chinese tools">
-      <button type="button" data-cmode="words" aria-pressed="true">Words</button>
-      <button type="button" data-cmode="sent" aria-pressed="false">Sentences</button>
-      <button type="button" data-cmode="quiz" aria-pressed="false">Quiz</button>
+    <div class="mbar">
+      <div class="deck" id="cdeck" role="group" aria-label="Chinese tools">
+        <button type="button" data-cmode="words" aria-pressed="true">Words</button>
+        <button type="button" data-cmode="sent" aria-pressed="false">Sentences</button>
+        <button type="button" data-cmode="quiz" aria-pressed="false">Quiz</button>
+      </div>
+      <div class="toggles"><button type="button" id="cpyBtn" aria-pressed="true">Pinyin: on</button></div>
     </div>
     <p class="deck-note" id="cnote"></p>
     <div id="cbody"></div>
@@ -341,6 +351,7 @@ nav.tabs a small{display:block;font-size:10px;font-weight:400;opacity:.75;letter
     <div class="quiz" id="quiz"></div>
   </section>
 </main>
+<div id="auditbar" role="status" aria-live="polite"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -373,12 +384,12 @@ const WORDS = [
   {c:"greet", ch:"Guet", ipa:"ɡuət", de:"gut", zh:"好"},
   {c:"greet", ch:"Merci vilmal", ipa:"ˈmɛrsi ˈfilmɑːl", de:"Danke vielmals", zh:"非常感謝", tip:"重音在 Mer 上，跟法語不同。"},
   {c:"greet", ch:"Exgüsi", ipa:"ɛksˈɡysi", de:"Entschuldigung", zh:"不好意思／借過"},
-  {c:"greet", ch:"En Guete!", ipa:"əŋ ˈɡuətə", de:"Guten Appetit!", zh:"用餐愉快！"},
+  {c:"greet", ch:"En Guete!", ipa:"əŋ ˈɡuətə", de:"Guten Appetit!", zh:"請慢用！"},
   {c:"greet", ch:"Proscht!", ipa:"prɔʃt", de:"Prost!", zh:"乾杯！", tip:"st 一律唸成「scht」。"},
   {c:"greet", ch:"Uf Widerluege", ipa:"uf ˈʋidərˌluəɡə", de:"Auf Wiedersehen", zh:"再見（正式）"},
   {c:"greet", ch:"Tschüss", ipa:"tʃys", de:"Tschüss", zh:"拜拜"},
   {c:"greet", ch:"Schöne Tag", ipa:"ˈʃøːnə tɑːɡ", de:"Schönen Tag", zh:"祝你有美好的一天"},
-  {c:"greet", ch:"Ja / Nei", say:"Ja. Nei.", ipa:"jɑ / nɛi̯", de:"Ja / Nein", zh:"是／不是"},
+  {c:"greet", ch:"Ja / Nei", say:"Ja. Nei.", ipa:"jɑ / nɛi̯", de:"Ja / Nein", zh:"對／不對"},
   // 數字
   {c:"num", ch:"eis", ipa:"ɛi̯s", de:"eins", zh:"一"},
   {c:"num", ch:"zwei", ipa:"tsʋɛi̯", de:"zwei", zh:"二", tip:"伯恩一帶說 zwöi。"},
@@ -407,7 +418,7 @@ const WORDS = [
   {c:"daily", ch:"luege", ipa:"ˈluəɡə", de:"schauen", zh:"看"},
   {c:"daily", ch:"lose", ipa:"ˈlosə", de:"zuhören", zh:"聽"},
   {c:"daily", ch:"schaffe", ipa:"ˈʃafə", de:"arbeiten", zh:"工作"},
-  {c:"daily", ch:"poschte", ipa:"ˈpɔʃtə", de:"einkaufen", zh:"購物（買日用品）"},
+  {c:"daily", ch:"poschte", ipa:"ˈpɔʃtə", de:"einkaufen", zh:"買日用品"},
   {c:"daily", ch:"Chind", ipa:"xind", de:"Kind", zh:"小孩", tip:"標準德語的 k 開頭，瑞士德語常變成 ch [x]。"},
   {c:"daily", ch:"Huus", ipa:"huːs", de:"Haus", zh:"房子", tip:"標準德語的 au 在這裡是長 u。"},
   {c:"daily", ch:"Ziit", ipa:"tsiːt", de:"Zeit", zh:"時間", tip:"標準德語的 ei 在這裡是長 i。"},
@@ -534,30 +545,30 @@ const LESSONS = [
 /* 德檢 B1 對照：標準德語 | 瑞士德語（蘇黎世） | 中文 */
 const B1_RAW = {
 "人與家庭": `
-der Vater|de Vatter|父親
-die Mutter|d Mueter|母親
-die Eltern|d Eltere|父母
-der Bruder|de Brüeder|兄弟
-die Schwester|d Schwöschter|姊妹
+der Vater|de Vatter|爸爸
+die Mutter|d Mueter|媽媽
+die Eltern|d Eltere|爸媽
+der Bruder|de Brüeder|哥哥／弟弟
+die Schwester|d Schwöschter|姊姊／妹妹
 der Sohn|de Sohn|兒子
 die Tochter|d Tochter|女兒
 das Kind|s Chind|小孩
 der Junge|de Bueb|男孩
 das Mädchen|s Meitli|女孩
-die Großeltern|d Grosseltere|祖父母
-der Onkel|de Unggle|叔伯／舅舅
+die Großeltern|d Grosseltere|阿公阿嬤
+der Onkel|de Unggle|叔叔／舅舅
 die Tante|d Tante|阿姨／姑姑
-der Ehemann|de Maa|丈夫
-die Ehefrau|d Frau|妻子
-verheiratet|ghürate|已婚的
-ledig|ledig|單身的
-geschieden|gschide|離婚的
+der Ehemann|de Maa|老公
+die Ehefrau|d Frau|老婆
+verheiratet|ghürate|結婚了
+ledig|ledig|單身
+geschieden|gschide|離婚了
 heiraten|hürate|結婚
 der Freund|de Fründ|朋友／男朋友
 die Freundin|d Fründin|朋友／女朋友
 der Nachbar|de Nachber|鄰居
 der Name|de Name|名字
-wohnen|wohne|居住
+wohnen|wohne|住
 `,
 "身體與健康": `
 der Kopf|de Chopf|頭
@@ -572,16 +583,16 @@ das Bein|s Bei|腿
 der Fuß|de Fuess|腳
 der Bauch|de Buuch|肚子
 der Rücken|de Rugge|背
-krank|chrank|生病的
-gesund|gsund|健康的
-müde|müed|累的
+krank|chrank|生病
+gesund|gsund|健康
+müde|müed|累
 das Fieber|s Fieber|發燒
 die Erkältung|d Erchältig|感冒
 der Schmerz|de Schmerz|疼痛
 wehtun|weh tue|痛
 der Arzt|de Dokter|醫生
 die Apotheke|d Apiteegg|藥局
-das Medikament|s Medikamänt|藥物
+das Medikament|s Medikamänt|藥
 das Krankenhaus|s Spital|醫院
 die Versicherung|d Versicherig|保險
 `,
@@ -630,8 +641,8 @@ das Wasser|s Wasser|水
 der Kaffee|de Kafi|咖啡
 der Wein|de Wii|葡萄酒
 der Zucker|de Zucker|糖
-süß|süess|甜的
-lecker|fein|好吃的
+süß|süess|甜
+lecker|fein|好吃
 kochen|choche|煮飯
 Hunger haben|Hunger ha|肚子餓
 die Rechnung|d Rächnig|帳單
@@ -641,9 +652,9 @@ das Trinkgeld|s Trinkgäld|小費
 einkaufen|poschte|買東西
 das Geschäft|de Lade|商店
 der Preis|de Pris|價格
-kosten|choschte|價錢是
-teuer|tüür|貴的
-billig|billig|便宜的
+kosten|choschte|要多少錢
+teuer|tüür|貴
+billig|billig|便宜
 das Geld|s Gäld|錢
 der Franken|de Franke|法郎
 bezahlen|zahle|付錢
@@ -676,13 +687,13 @@ die Reise|d Reis|旅行
 der Urlaub|d Ferie|假期
 das Gepäck|s Gepäck|行李
 der Pass|de Pass|護照
-die Straße|d Strass|街道
+die Straße|d Strass|馬路
 der Gehweg|s Trottoir|人行道
 die Kreuzung|d Chrüzig|十字路口
 rechts|rächts|右邊
 geradeaus|gradus|直走
-weit|wiit|遠的
-nah|nöch|近的
+weit|wiit|遠
+nah|nöch|近
 der Führerschein|de Fahrusweis|駕照
 parken|parkiere|停車
 `,
@@ -693,7 +704,7 @@ der Beruf|de Bruef|職業
 die Firma|d Firma|公司
 der Kollege|de Kolleg|同事
 das Büro|s Büro|辦公室
-die Stelle|d Stell|職位
+die Stelle|d Stell|職缺
 sich bewerben|sich bewärbe|應徵
 die Bewerbung|d Bewerbig|求職申請
 der Lebenslauf|de Läbeslauf|履歷
@@ -701,7 +712,7 @@ das Gehalt|de Lohn|薪水
 die Besprechung|d Sitzig|會議
 der Feierabend|de Fiirabig|下班時間
 kündigen|chünde|辭職／解雇
-arbeitslos|arbetslos|失業的
+arbeitslos|arbetslos|失業
 die Ausbildung|d Uusbildig|職業訓練
 die Pause|d Pause|休息
 der Kunde|de Kund|客戶
@@ -716,7 +727,7 @@ die Prüfung|d Prüefig|考試
 bestehen|bestaa|通過（考試）
 die Hausaufgabe|d Huusufgab|作業
 die Sprache|d Sprach|語言
-verstehen|verstaa|理解
+verstehen|verstaa|了解
 erklären|erchläre|解釋
 wiederholen|widerhole|重複
 studieren|studiere|讀大學
@@ -727,7 +738,7 @@ fragen|fröge|問
 antworten|antworte|回答
 `,
 "時間與星期": `
-die Woche|d Wuchä|一週
+die Woche|d Wuchä|禮拜
 der Monat|de Monet|月
 die Stunde|d Stund|小時
 der Nachmittag|de Namittag|下午
@@ -739,10 +750,10 @@ Mittwoch|Mittwuch|星期三
 Donnerstag|Dunschtig|星期四
 Freitag|Friitig|星期五
 Samstag|Samschtig|星期六
-Sonntag|Sunntig|星期日
+Sonntag|Sunntig|星期天
 früh|früe|早
 spät|spaat|晚
-später|spöter|稍後
+später|spöter|晚點
 manchmal|mängisch|有時候
 schon|scho|已經
 noch|no|還
@@ -753,8 +764,8 @@ die Sonne|d Sunne|太陽
 der Regen|de Räge|雨
 regnen|rägne|下雨
 der Schnee|de Schnee|雪
-kalt|chalt|冷的
-heiß|heiss|熱的
+kalt|chalt|冷
+heiß|heiss|熱
 das Gewitter|s Gwitter|雷雨
 der Berg|de Bärg|山
 der See|de See|湖
@@ -776,22 +787,22 @@ das Konzert|s Konzärt|音樂會
 das Buch|s Buech|書
 das Fest|s Fescht|慶典
 einladen|iilade|邀請
-die Einladung|d Iiladig|邀請（名詞）
+die Einladung|d Iiladig|邀請函
 sich treffen|sich träffe|見面
 der Verein|de Verein|社團
-Lust haben|Luscht ha|想要（做某事）
+Lust haben|Luscht ha|想（做某事）
 fernsehen|Fernseh luege|看電視
 `,
 "溝通與媒體": `
 anrufen|aalüte|打電話
 die Nachricht|d Nachricht|訊息／新聞
-schicken|schicke|寄送
+schicken|schicke|寄
 die Post|d Poscht|郵局
 die E-Mail|s Mail|電子郵件
 die Zeitung|d Ziitig|報紙
 sagen|säge|說
 sprechen|rede|說話
-erzählen|verzelle|講述
+erzählen|verzelle|講故事
 die Meinung|d Meinig|意見
 glauben|glaube|相信／認為
 diskutieren|diskutiere|討論
@@ -806,25 +817,25 @@ sich anmelden|sich aamälde|登記
 das Konto|s Konto|帳戶
 der Ausweis|d ID|身分證
 der Antrag|s Gsuech|申請
-die Aufenthaltserlaubnis|d Ufenthaltsbewilligung|居留許可
+die Aufenthaltserlaubnis|d Ufenthaltsbewilligung|居留證
 die Gemeinde|d Gmeind|鄉鎮／市公所
 die Steuer|d Stüür|稅
 `,
 "常用形容詞": `
-groß|gross|大的
-klein|chlii|小的
-gut|guet|好的
-schlecht|schlächt|壞的
-schnell|schnäll|快的
-einfach|eifach|簡單的
-schwierig|schwirig|困難的
-leer|läär|空的
-traurig|truurig|難過的
-laut|luut|大聲的
-leise|liislig|小聲的
-sauber|suuber|乾淨的
-schmutzig|dräckig|髒的
-wichtig|wichtig|重要的
+groß|gross|大
+klein|chlii|小
+gut|guet|好
+schlecht|schlächt|壞
+schnell|schnäll|快
+einfach|eifach|簡單
+schwierig|schwirig|困難
+leer|läär|空
+traurig|truurig|難過
+laut|luut|大聲
+leise|liislig|小聲
+sauber|suuber|乾淨
+schmutzig|dräckig|髒
+wichtig|wichtig|重要
 `,
 "常用動詞": `
 sein|sii|是
@@ -833,11 +844,11 @@ gehen|gaa|去
 kommen|cho|來
 geben|gää|給
 nehmen|nää|拿
-sehen|gseh|看見
-hören|ghöre|聽見
+sehen|gseh|看到
+hören|ghöre|聽到
 wissen|wüsse|知道
 denken|dänke|想
-suchen|sueche|尋找
+suchen|sueche|找
 brauchen|bruuche|需要
 helfen|hälfe|幫忙
 stehen|staa|站
@@ -845,14 +856,14 @@ liegen|ligge|躺
 aufstehen|ufstaa|起床
 anfangen|aafange|開始
 öffnen|ufmache|打開
-schließen|zuemache|關上
+schließen|zuemache|關
 vergessen|vergässe|忘記
-können|chöne|能夠
-müssen|müesse|必須
+können|chöne|能
+müssen|müesse|一定要
 wollen|wele|想要
-dürfen|dörfe|可以（被允許）
-gefallen|gfalle|討…喜歡
-versuchen|probiere|嘗試
+dürfen|dörfe|可以
+gefallen|gfalle|喜歡
+versuchen|probiere|試
 weinen|brüele|哭
 `,
 "常用小字": `
@@ -860,9 +871,9 @@ hier|da|這裡
 dort|det|那裡
 viel|vill|多
 wenig|weni|少
-jemand|öpper|某人
+jemand|öpper|有人
 niemand|niemer|沒有人
-alle|alli|全部
+alle|alli|大家
 warum|wieso|為什麼
 wann|wänn|什麼時候
 welche|weli|哪個
@@ -871,8 +882,8 @@ auch|au|也
 weil|will|因為
 vielleicht|vilicht|也許
 zusammen|zäme|一起
-genug|gnueg|足夠
-gern|gärn|樂意
+genug|gnueg|夠
+gern|gärn|很樂意
 `
 };
 const B1_CATS = Object.keys(B1_RAW).map((name, i) => ({id:"b"+i, name}));
@@ -932,7 +943,7 @@ function fetchClips(){
     .then(r => { if(!r.ok) throw new Error("http " + r.status); return r.json(); })
     .then(d => { CLIPS = d.clips || d; })
     .catch(() => { CLIPS = {}; })
-    .then(() => { renderVoiceNote(); renderSentences(); });
+    .then(() => { renderVoiceNote(); renderSentences(); if(auditOn) auditScan(); });
 }
 function stopAll(){
   if(curAudio){ try{ curAudio.pause(); }catch(e){} curAudio = null; }
@@ -1173,10 +1184,10 @@ const VERBS = [
   {id:"wohnen", zh:"住", inf:"wohne", obj:"z Züri", deObj:"in Zürich", zhPres:"住在蘇黎世", zhPerf:"住過蘇黎世",
    pres:["wohne","wohnsch","wohnt","wohned","wohned","wohned"], dePres:["wohne","wohnst","wohnt","wohnen","wohnt","wohnen"],
    part:"gwohnt", dePart:"gewohnt", aux:"ha", tip:"z Züri 是「在蘇黎世」，z 是 zu 的縮寫。"},
-  {id:"arbeiten", zh:"工作", inf:"schaffe", obj:"vil", deObj:"viel", zhPres:"工作很多", zhPerf:"工作了很多",
+  {id:"arbeiten", zh:"工作", inf:"schaffe", obj:"vil", deObj:"viel", zhPres:"很常工作", zhPerf:"工作了很久",
    pres:["schaffe","schaffsch","schafft","schaffed","schaffed","schaffed"], dePres:["arbeite","arbeitest","arbeitet","arbeiten","arbeitet","arbeiten"],
    part:"gschaffet", dePart:"gearbeitet", aux:"ha", tip:"schaffe 就是「工作」，和標準德語的 arbeiten 是不同的字。"},
-  {id:"lernen", zh:"學", inf:"lerne", obj:"Schwiizerdütsch", deObj:"Schweizerdeutsch", zhPres:"學瑞士德語", zhPerf:"學了瑞士德語",
+  {id:"lernen", zh:"學", inf:"lerne", obj:"Schwiizerdütsch", deObj:"Schweizerdeutsch", zhPres:"學瑞士德文", zhPerf:"學了瑞士德文",
    pres:["lerne","lernsch","lernt","lerned","lerned","lerned"], dePres:["lerne","lernst","lernt","lernen","lernt","lernen"],
    part:"glernt", dePart:"gelernt", aux:"ha", tip:"規則動詞。"},
   {id:"spielen", zh:"玩／踢", inf:"spile", obj:"Fuessball", deObj:"Fußball", zhPres:"踢足球", zhPerf:"踢了足球",
@@ -1228,30 +1239,30 @@ const SENTS = [
   {c:"talk", ch:"Chasch du das bitte widerhole?", de:"Kannst du das bitte wiederholen?", zh:"你可以再說一次嗎？"},
   {c:"talk", ch:"Chasch du langsamer rede?", de:"Kannst du langsamer sprechen?", zh:"你可以說慢一點嗎？"},
   {c:"talk", ch:"Sprichsch du Änglisch?", de:"Sprichst du Englisch?", zh:"你會說英文嗎？"},
-  {c:"talk", ch:"Was heisst das uf Dütsch?", de:"Was heißt das auf Deutsch?", zh:"這個用德語怎麼說？"},
+  {c:"talk", ch:"Was heisst das uf Dütsch?", de:"Was heißt das auf Deutsch?", zh:"這個用德文怎麼說？"},
   {c:"talk", ch:"Chönnted Si mir bitte hälfe?", de:"Könnten Sie mir bitte helfen?", zh:"您可以幫我一下嗎？"},
   {c:"food", ch:"Ich hätt gärn en Kafi.", de:"Ich hätte gern einen Kaffee.", zh:"我想要一杯咖啡。"},
-  {c:"food", ch:"Händ Si en Tisch für zwei frei?", de:"Haben Sie einen Tisch für zwei frei?", zh:"你們有兩人的空位嗎？"},
+  {c:"food", ch:"Händ Si en Tisch für zwei frei?", de:"Haben Sie einen Tisch für zwei frei?", zh:"請問有兩位的位子嗎？"},
   {c:"food", ch:"D Charte bitte.", de:"Die Speisekarte bitte.", zh:"請給我菜單。"},
-  {c:"food", ch:"Mir wetted zahle.", de:"Wir möchten zahlen.", zh:"我們要結帳。"},
+  {c:"food", ch:"Mir wetted zahle.", de:"Wir möchten zahlen.", zh:"麻煩結帳。"},
   {c:"food", ch:"Das isch sehr fein.", de:"Das ist sehr lecker.", zh:"這個很好吃。"},
   {c:"shop", ch:"Was choschtet das?", de:"Was kostet das?", zh:"這個多少錢？"},
-  {c:"shop", ch:"Das isch mir z tüür.", de:"Das ist mir zu teuer.", zh:"這個對我來說太貴了。"},
+  {c:"shop", ch:"Das isch mir z tüür.", de:"Das ist mir zu teuer.", zh:"這個太貴了。"},
   {c:"shop", ch:"Chan ich mit Charte zahle?", de:"Kann ich mit Karte zahlen?", zh:"我可以刷卡嗎？"},
   {c:"shop", ch:"Ich luege nume.", de:"Ich schaue nur.", zh:"我只是看看。"},
   {c:"move", ch:"Wo isch de Bahnhof?", de:"Wo ist der Bahnhof?", zh:"火車站在哪裡？"},
   {c:"move", ch:"Wänn fahrt de nöchscht Zug?", de:"Wann fährt der nächste Zug?", zh:"下一班火車什麼時候開？"},
-  {c:"move", ch:"Es Billett nach Bärn, bitte.", de:"Eine Fahrkarte nach Bern, bitte.", zh:"請給我一張去伯恩的車票。"},
+  {c:"move", ch:"Es Billett nach Bärn, bitte.", de:"Eine Fahrkarte nach Bern, bitte.", zh:"請給我一張到伯恩的車票。"},
   {c:"move", ch:"Mues ich umstiige?", de:"Muss ich umsteigen?", zh:"我需要轉車嗎？"},
   {c:"move", ch:"Uf wellem Gleis?", de:"Auf welchem Gleis?", zh:"在哪個月台？"},
   {c:"move", ch:"De Zug het Verspötig.", de:"Der Zug hat Verspätung.", zh:"火車誤點了。"},
   {c:"daily", ch:"Wo isch d Toilette?", de:"Wo ist die Toilette?", zh:"廁所在哪裡？"},
-  {c:"daily", ch:"Ich ha Durscht.", de:"Ich habe Durst.", zh:"我口渴。"},
+  {c:"daily", ch:"Ich ha Durscht.", de:"Ich habe Durst.", zh:"我好渴。"},
   {c:"daily", ch:"Es tuet mer leid.", de:"Es tut mir leid.", zh:"對不起。"},
   {c:"daily", ch:"Kei Problem.", de:"Kein Problem.", zh:"沒問題。"},
   {c:"daily", ch:"Bis spöter!", de:"Bis später!", zh:"待會見！"},
   {c:"daily", ch:"Wie spaat isch es?", de:"Wie spät ist es?", zh:"現在幾點？"},
-  {c:"daily", ch:"Ich ha kei Ziit.", de:"Ich habe keine Zeit.", zh:"我沒有時間。"},
+  {c:"daily", ch:"Ich ha kei Ziit.", de:"Ich habe keine Zeit.", zh:"我沒空。"},
   {c:"daily", ch:"Chunnsch mit?", de:"Kommst du mit?", zh:"你要一起來嗎？"},
   {c:"daily", ch:"Hüt isch es schön.", de:"Heute ist es schön.", zh:"今天天氣很好。"}
 ];
@@ -1584,7 +1595,7 @@ function enSentence(v, i, tense){
   return `${S} ${vb} ${e.obj}.`;
 }
 
-const PY = {"你好（正式）":"nǐhǎo (zhèngshì)","大家好":"dàjiā hǎo","嗨（熟人之間）":"hāi (shúrén zhījiān)","你好嗎？":"nǐhǎo ma?","好":"hǎo","非常感謝":"fēicháng gǎnxiè","不好意思／借過":"bù hǎoyìsi / jiè guò","用餐愉快！":"yòngcān yúkuài!","乾杯！":"gānbēi!","再見（正式）":"zàijiàn (zhèngshì)","拜拜":"bàibài","祝你有美好的一天":"zhù nǐ yǒu měihǎo de yìtiān","是／不是":"shì / búshì","一":"yī","二":"èr","三":"sān","四":"sì","五":"wǔ","六":"liù","七":"qī","八":"bā","九":"jiǔ","十":"shí","可頌":"kě sòng","紅蘿蔔":"hóng luóbo","馬鈴薯":"mǎlíng shǔ","奶油":"nǎiyóu","鮮奶油":"xiān nǎiyóu","冰淇淋":"bīng qí lín","雞肉":"jīròu","早餐":"zǎocān","午餐":"wǔcān","下午點心":"xiàwǔ diǎnxīn","晚餐":"wǎncān","廚房小櫃子":"chúfáng xiǎo guìzi","看":"kàn","聽":"tīng","工作":"gōngzuò","購物（買日用品）":"gòuwù (mǎi rì yòngpǐn)","小孩":"xiǎohái","房子":"fángzi","時間":"shíjiān","某樣東西":"mǒuyàng dōngxī","什麼都沒有":"shénme dōu méiyǒu","手機":"shǒujī","醫院":"yīyuàn","超級、非常（口語）":"chāojí, fēicháng (kǒuyǔ)","腳踏車":"jiǎotà chē","路面電車":"lùmiàn diànchē","車票":"chēpiào","火車":"huǒchē","月台":"yuètái","停車":"tíngchē","火車站在哪裡？":"huǒchē zhàn zài nǎlǐ?","今天":"jīntiān","明天":"míngtiān","昨天":"zuótiān","現在":"xiànzài","早上":"zǎoshàng","晚上":"wǎnshàng","一個禮拜":"yígè lǐbài","父親":"fùqīn","母親":"mǔqīn","父母":"fùmǔ","兄弟":"xiōngdì","姊妹":"zǐmèi","兒子":"érzi","女兒":"nǚ'ér","男孩":"nánhái","女孩":"nǚhái","祖父母":"zǔ fùmǔ","叔伯／舅舅":"shūbó / jiùjiù","阿姨／姑姑":"āyí / gūgū","丈夫":"zhàngfū","妻子":"qīzǐ","已婚的":"yǐhūn de","單身的":"dānshēn de","離婚的":"líhūn de","結婚":"jiéhūn","朋友／男朋友":"péngyǒu / nán péngyǒu","朋友／女朋友":"péngyǒu / nǚ péngyǒu","鄰居":"línjū","名字":"míngzì","居住":"jūzhù","頭":"tóu","眼睛":"yǎnjīng","耳朵":"ěrduǒ","鼻子":"bízi","嘴巴":"zuǐbā","牙齒":"yáchǐ","脖子／喉嚨":"bózi / hóulóng","手":"shǒu","腿":"tuǐ","腳":"jiǎo","肚子":"dǔzi","背":"bèi","生病的":"shēngbìng de","健康的":"jiànkāng de","累的":"lèi de","發燒":"fāshāo","感冒":"gǎnmào","疼痛":"téngtòng","痛":"tòng","醫生":"yīshēng","藥局":"yàojú","藥物":"yàowù","保險":"bǎoxiǎn","公寓":"gōngyù","房間":"fángjiān","廚房":"chúfáng","浴室":"yùshì","臥室":"wòshì","陽台":"yángtái","樓梯":"lóutī","電梯":"diàntī","房租":"fángzū","房東":"fángdōng","搬家":"bānjiā","鑰匙":"yàoshi","門":"mén","窗戶":"chuānghù","桌子":"zhuōzi","椅子":"yǐzi","床":"chuáng","櫃子":"guìzi","冰箱":"bīngxiāng","暖氣":"nuǎnqì","垃圾":"lèsè","打掃":"dǎsǎo","洗":"xǐ","食物／一餐":"shíwù / yìcān","喝":"hē","麵包":"miànbāo","小麵包":"xiǎo miànbāo","起司":"qǐ sī","香腸":"xiāngcháng","肉":"ròu","魚":"yú","蔬菜":"shūcài","水果":"shuǐguǒ","蘋果":"píngguǒ","蛋":"dàn","牛奶":"niúnǎi","水":"shuǐ","咖啡":"kāfēi","葡萄酒":"pútáo jiǔ","糖":"táng","甜的":"tián de","好吃的":"hǎochī de","煮飯":"zhǔfàn","肚子餓":"dǔzi è","帳單":"zhàngdān","小費":"xiǎofèi","買東西":"mǎi dōngxī","商店":"shāngdiàn","價格":"jiàgé","價錢是":"jiàqián shì","貴的":"guì de","便宜的":"piányi de","錢":"qián","法郎":"fǎláng","付錢":"fùqián","收銀台":"shōuyín tái","收據":"shōujù","特價":"tèjià","衣服":"yīfú","褲子":"kùzi","外套":"wàitào","鞋子":"xiézi","尺寸":"chǐcùn","試穿":"shìchuān","換貨":"huànhuò","買":"mǎi","賣":"mài","火車站":"huǒchē zhàn","出發":"chūfā","抵達":"dǐdá","轉乘":"zhuǎnchéng","誤點":"wùdiǎn","機場":"jīchǎng","飛":"fēi","旅行":"lǚxíng","假期":"jiàqī","行李":"xínglǐ","護照":"hùzhào","街道":"jiēdào","人行道":"rénxíng dào","十字路口":"shízì lùkǒu","右邊":"yòubiān","直走":"zhí zǒu","遠的":"yuǎn de","近的":"jìn de","駕照":"jiàzhào","工作（名詞）":"gōngzuò (míngcí)","工作（動詞）":"gōngzuò (dòngcí)","職業":"zhíyè","公司":"gōngsī","同事":"tóngshì","辦公室":"bàngōng shì","職位":"zhíwèi","應徵":"yìngzhēng","求職申請":"qiúzhí shēnqǐng","履歷":"lǚlì","薪水":"xīnshuǐ","會議":"huìyì","下班時間":"xiàbān shíjiān","辭職／解雇":"cízhí / jiěgù","失業的":"shīyè de","職業訓練":"zhíyè xùnliàn","休息":"xiūxī","客戶":"kèhù","賺錢":"zhuànqián","學校":"xuéxiào","老師":"lǎoshī","學生":"xuéshēng","學習":"xuéxí","考試":"kǎoshì","通過（考試）":"tōngguò (kǎoshì)","作業":"zuòyè","語言":"yǔyán","理解":"lǐjiě","解釋":"jiěshì","重複":"chóngfù","讀大學":"dú dàxué","成績單／證書":"chéngjì dān / zhèngshū","寫":"xiě","讀":"dú","問":"wèn","回答":"huídá","一週":"yìzhōu","月":"yuè","小時":"xiǎoshí","下午":"xiàwǔ","週末":"zhōumò","星期一":"xīngqí yī","星期二":"xīngqí èr","星期三":"xīngqí sān","星期四":"xīngqí sì","星期五":"xīngqí wǔ","星期六":"xīngqí liù","星期日":"xīngqí rì","早":"zǎo","晚":"wǎn","稍後":"shāohòu","有時候":"yǒu shíhòu","已經":"yǐjīng","還":"hái","天氣":"tiānqì","太陽":"tàiyáng","雨":"yǔ","下雨":"xiàyǔ","雪":"xuě","冷的":"lěng de","熱的":"rè de","雷雨":"léiyǔ","山":"shān","湖":"hú","森林":"sēnlín","花":"huā","貓":"māo","春天":"chūntiān","夏天":"xiàtiān","秋天":"qiūtiān","環境":"huánjìng","空閒時間":"kòngxián shíjiān","玩":"wán","游泳":"yóuyǒng","健行":"jiànxíng","音樂":"yīnyuè","音樂會":"yīnyuè huì","書":"shū","慶典":"qìngdiǎn","邀請":"yāoqǐng","邀請（名詞）":"yāoqǐng (míngcí)","見面":"jiànmiàn","社團":"shètuán","想要（做某事）":"xiǎngyào (zuò mǒushì)","看電視":"kàn diànshì","打電話":"dǎ diànhuà","訊息／新聞":"xùnxī / xīnwén","寄送":"jìsòng","郵局":"yóujú","電子郵件":"diànzi yóujiàn","報紙":"bàozhǐ","說":"shuō","說話":"shuōhuà","講述":"jiǎngshù","意見":"yìjiàn","相信／認為":"xiāngxìn / rènwéi","討論":"tǎolùn","政府機關":"zhèngfǔ jīguān","表格":"biǎogé","填寫":"tiánxiě","簽名":"qiānmíng","地址":"dìzhǐ","登記":"dēngjì","帳戶":"zhànghù","身分證":"shēnfèn zhèng","申請":"shēnqǐng","居留許可":"jūliú xǔkě","鄉鎮／市公所":"xiāngzhèn / shì gōngsuǒ","稅":"shuì","大的":"dà de","小的":"xiǎo de","好的":"hǎo de","壞的":"huài de","快的":"kuài de","簡單的":"jiǎndān de","困難的":"kùnnán de","空的":"kōng de","難過的":"nánguò de","大聲的":"dàshēng de","小聲的":"xiǎoshēng de","乾淨的":"gānjìng de","髒的":"zàng de","重要的":"zhòngyào de","是":"shì","有":"yǒu","去":"qù","來":"lái","給":"gěi","拿":"ná","看見":"kànjiàn","聽見":"tīngjiàn","知道":"zhīdào","想":"xiǎng","尋找":"xúnzhǎo","需要":"xūyào","幫忙":"bāngmáng","站":"zhàn","躺":"tǎng","起床":"qǐchuáng","開始":"kāishǐ","打開":"dǎkāi","關上":"guānshàng","忘記":"wàngjì","能夠":"nénggòu","必須":"bìxū","想要":"xiǎngyào","可以（被允許）":"kěyǐ (bèi yǔnxǔ)","討…喜歡":"tǎo… xǐhuān","嘗試":"chángshì","哭":"kū","這裡":"zhèlǐ","那裡":"nàlǐ","多":"duō","少":"shǎo","某人":"mǒurén","沒有人":"méiyǒu rén","全部":"quánbù","為什麼":"wèi shénme","什麼時候":"shénme shíhòu","哪個":"nǎge","不":"bù","也":"yě","因為":"yīnwèi","也許":"yěxǔ","一起":"yìqǐ","足夠":"zúgòu","樂意":"lèyì","很好，謝謝。你呢？":"hěn hǎo, xièxiè. nǐ ne?","我是安娜。":"wǒ shì ānnà.","很高興認識你。":"hěn gāoxìng rènshí nǐ.","你從哪裡來？":"nǐ cóng nǎlǐ lái?","我來自台灣。":"wǒ láizì táiwān.","你住在哪裡？":"nǐ zhù zài nǎlǐ?","我聽不懂。":"wǒ tīng bù dǒng.","你可以再說一次嗎？":"nǐ kěyǐ zàishuō yícì ma?","你可以說慢一點嗎？":"nǐ kěyǐ shuō màn yìdiǎn ma?","你會說英文嗎？":"nǐ huì shuō yīngwén ma?","這個用德語怎麼說？":"zhège yòng déyǔ zěnme shuō?","您可以幫我一下嗎？":"nín kěyǐ bāng wǒ yíxià ma?","我想要一杯咖啡。":"wǒ xiǎngyào yìbēi kāfēi.","你們有兩人的空位嗎？":"nǐmen yǒu liǎng rén de kòngwèi ma?","請給我菜單。":"qǐng gěi wǒ càidān.","我們要結帳。":"wǒmen yào jiézhàng.","這個很好吃。":"zhège hěn hǎochī.","這個多少錢？":"zhège duōshǎo qián?","這個對我來說太貴了。":"zhège duì wǒ láishuō tàiguì le.","我可以刷卡嗎？":"wǒ kěyǐ shuākǎ ma?","我只是看看。":"wǒ zhǐshì kànkàn.","下一班火車什麼時候開？":"xià yìbān huǒchē shénme shíhòu kāi?","請給我一張去伯恩的車票。":"qǐng gěi wǒ yìzhāng qù bó'ēn de chēpiào.","我需要轉車嗎？":"wǒ xūyào zhuǎnchē ma?","在哪個月台？":"zài nǎge yuètái?","火車誤點了。":"huǒchē wùdiǎn le.","廁所在哪裡？":"cèsuǒ zài nǎlǐ?","我口渴。":"wǒ kǒukě.","對不起。":"duì bù qǐ.","沒問題。":"méi wèntí.","待會見！":"dài huìjiàn!","現在幾點？":"xiànzài jǐdiǎn?","我沒有時間。":"wǒ méiyǒu shíjiān.","你要一起來嗎？":"nǐ yào yìqǐ lái ma?","今天天氣很好。":"jīntiān tiānqì hěn hǎo.","我吃蘋果":"wǒ chī píngguǒ","你吃蘋果":"nǐ chī píngguǒ","他吃蘋果":"tā chī píngguǒ","我們吃蘋果":"wǒmen chī píngguǒ","你們吃蘋果":"nǐmen chī píngguǒ","他們吃蘋果":"tāmen chī píngguǒ","我吃了蘋果":"wǒ chī le píngguǒ","你吃了蘋果":"nǐ chī le píngguǒ","他吃了蘋果":"tā chī le píngguǒ","我們吃了蘋果":"wǒmen chī le píngguǒ","你們吃了蘋果":"nǐmen chī le píngguǒ","他們吃了蘋果":"tāmen chī le píngguǒ","我喝咖啡":"wǒ hē kāfēi","你喝咖啡":"nǐ hē kāfēi","他喝咖啡":"tā hē kāfēi","我們喝咖啡":"wǒmen hē kāfēi","你們喝咖啡":"nǐmen hē kāfēi","他們喝咖啡":"tāmen hē kāfēi","我喝了咖啡":"wǒ hē le kāfēi","你喝了咖啡":"nǐ hē le kāfēi","他喝了咖啡":"tā hē le kāfēi","我們喝了咖啡":"wǒmen hē le kāfēi","你們喝了咖啡":"nǐmen hē le kāfēi","他們喝了咖啡":"tāmen hē le kāfēi","我煮義大利麵":"wǒ zhǔ yìdàlìmiàn","你煮義大利麵":"nǐ zhǔ yìdàlìmiàn","他煮義大利麵":"tā zhǔ yìdàlìmiàn","我們煮義大利麵":"wǒmen zhǔ yìdàlìmiàn","你們煮義大利麵":"nǐmen zhǔ yìdàlìmiàn","他們煮義大利麵":"tāmen zhǔ yìdàlìmiàn","我煮了義大利麵":"wǒ zhǔ le yìdàlìmiàn","你煮了義大利麵":"nǐ zhǔ le yìdàlìmiàn","他煮了義大利麵":"tā zhǔ le yìdàlìmiàn","我們煮了義大利麵":"wǒmen zhǔ le yìdàlìmiàn","你們煮了義大利麵":"nǐmen zhǔ le yìdàlìmiàn","他們煮了義大利麵":"tāmen zhǔ le yìdàlìmiàn","我買車票":"wǒ mǎi chēpiào","你買車票":"nǐ mǎi chēpiào","他買車票":"tā mǎi chēpiào","我們買車票":"wǒmen mǎi chēpiào","你們買車票":"nǐmen mǎi chēpiào","他們買車票":"tāmen mǎi chēpiào","我買了車票":"wǒ mǎi le chēpiào","你買了車票":"nǐ mǎi le chēpiào","他買了車票":"tā mǎi le chēpiào","我們買了車票":"wǒmen mǎi le chēpiào","你們買了車票":"nǐmen mǎi le chēpiào","他們買了車票":"tāmen mǎi le chēpiào","我住在蘇黎世":"wǒ zhù zài sūlíshì","你住在蘇黎世":"nǐ zhù zài sūlíshì","他住在蘇黎世":"tā zhù zài sūlíshì","我們住在蘇黎世":"wǒmen zhù zài sūlíshì","你們住在蘇黎世":"nǐmen zhù zài sūlíshì","他們住在蘇黎世":"tāmen zhù zài sūlíshì","我住過蘇黎世":"wǒ zhù guò sūlíshì","你住過蘇黎世":"nǐ zhù guò sūlíshì","他住過蘇黎世":"tā zhù guò sūlíshì","我們住過蘇黎世":"wǒmen zhù guò sūlíshì","你們住過蘇黎世":"nǐmen zhù guò sūlíshì","他們住過蘇黎世":"tāmen zhù guò sūlíshì","我工作很多":"wǒ gōngzuò hěnduō","你工作很多":"nǐ gōngzuò hěnduō","他工作很多":"tā gōngzuò hěnduō","我們工作很多":"wǒmen gōngzuò hěnduō","你們工作很多":"nǐmen gōngzuò hěnduō","他們工作很多":"tāmen gōngzuò hěnduō","我工作了很多":"wǒ gōngzuò le hěnduō","你工作了很多":"nǐ gōngzuò le hěnduō","他工作了很多":"tā gōngzuò le hěnduō","我們工作了很多":"wǒmen gōngzuò le hěnduō","你們工作了很多":"nǐmen gōngzuò le hěnduō","他們工作了很多":"tāmen gōngzuò le hěnduō","我學瑞士德語":"wǒ xué ruìshì déyǔ","你學瑞士德語":"nǐ xué ruìshì déyǔ","他學瑞士德語":"tā xué ruìshì déyǔ","我們學瑞士德語":"wǒmen xué ruìshì déyǔ","你們學瑞士德語":"nǐmen xué ruìshì déyǔ","他們學瑞士德語":"tāmen xué ruìshì déyǔ","我學了瑞士德語":"wǒ xué le ruìshì déyǔ","你學了瑞士德語":"nǐ xué le ruìshì déyǔ","他學了瑞士德語":"tā xué le ruìshì déyǔ","我們學了瑞士德語":"wǒmen xué le ruìshì déyǔ","你們學了瑞士德語":"nǐmen xué le ruìshì déyǔ","他們學了瑞士德語":"tāmen xué le ruìshì déyǔ","我踢足球":"wǒ tī zúqiú","你踢足球":"nǐ tī zúqiú","他踢足球":"tā tī zúqiú","我們踢足球":"wǒmen tī zúqiú","你們踢足球":"nǐmen tī zúqiú","他們踢足球":"tāmen tī zúqiú","我踢了足球":"wǒ tī le zúqiú","你踢了足球":"nǐ tī le zúqiú","他踢了足球":"tā tī le zúqiú","我們踢了足球":"wǒmen tī le zúqiú","你們踢了足球":"nǐmen tī le zúqiú","他們踢了足球":"tāmen tī le zúqiú","我去電影院":"wǒ qù diànyǐngyuàn","你去電影院":"nǐ qù diànyǐngyuàn","他去電影院":"tā qù diànyǐngyuàn","我們去電影院":"wǒmen qù diànyǐngyuàn","你們去電影院":"nǐmen qù diànyǐngyuàn","他們去電影院":"tāmen qù diànyǐngyuàn","我去了電影院":"wǒ qù le diànyǐngyuàn","你去了電影院":"nǐ qù le diànyǐngyuàn","他去了電影院":"tā qù le diànyǐngyuàn","我們去了電影院":"wǒmen qù le diànyǐngyuàn","你們去了電影院":"nǐmen qù le diànyǐngyuàn","他們去了電影院":"tāmen qù le diànyǐngyuàn","我很累":"wǒ hěn lèi","你很累":"nǐ hěn lèi","他很累":"tā hěn lèi","我們很累":"wǒmen hěn lèi","你們很累":"nǐmen hěn lèi","他們很累":"tāmen hěn lèi","我之前很累":"wǒ zhīqián hěn lèi","你之前很累":"nǐ zhīqián hěn lèi","他之前很累":"tā zhīqián hěn lèi","我們之前很累":"wǒmen zhīqián hěn lèi","你們之前很累":"nǐmen zhīqián hěn lèi","他們之前很累":"tāmen zhīqián hěn lèi","我肚子餓":"wǒ dǔzi è","你肚子餓":"nǐ dǔzi è","他肚子餓":"tā dǔzi è","我們肚子餓":"wǒmen dǔzi è","你們肚子餓":"nǐmen dǔzi è","他們肚子餓":"tāmen dǔzi è","我之前肚子餓":"wǒ zhīqián dǔzi è","你之前肚子餓":"nǐ zhīqián dǔzi è","他之前肚子餓":"tā zhīqián dǔzi è","我們之前肚子餓":"wǒmen zhīqián dǔzi è","你們之前肚子餓":"nǐmen zhīqián dǔzi è","他們之前肚子餓":"tāmen zhīqián dǔzi è","吃":"chī","煮":"zhǔ","住":"zhù","學":"xué","玩／踢":"wán / tī","我":"wǒ","你":"nǐ","他":"tā","我們":"wǒmen","你們":"nǐmen","他們":"tāmen","他／她":"tā / tā"};
+const PY = {"你好（正式）":"nǐhǎo (zhèngshì)","大家好":"dàjiā hǎo","嗨（熟人之間）":"hāi (shúrén zhījiān)","你好嗎？":"nǐhǎo ma?","好":"hǎo","非常感謝":"fēicháng gǎnxiè","不好意思／借過":"bù hǎoyìsi / jiè guò","請慢用！":"qǐng màn yòng!","乾杯！":"gānbēi!","再見（正式）":"zàijiàn (zhèngshì)","拜拜":"bàibài","祝你有美好的一天":"zhù nǐ yǒu měihǎo de yìtiān","對／不對":"duì / bù duì","一":"yī","二":"èr","三":"sān","四":"sì","五":"wǔ","六":"liù","七":"qī","八":"bā","九":"jiǔ","十":"shí","可頌":"kě sòng","紅蘿蔔":"hóng luóbo","馬鈴薯":"mǎlíng shǔ","奶油":"nǎiyóu","鮮奶油":"xiān nǎiyóu","冰淇淋":"bīng qí lín","雞肉":"jīròu","早餐":"zǎocān","午餐":"wǔcān","下午點心":"xiàwǔ diǎnxīn","晚餐":"wǎncān","廚房小櫃子":"chúfáng xiǎo guìzi","看":"kàn","聽":"tīng","工作":"gōngzuò","買日用品":"mǎi rì yòngpǐn","小孩":"xiǎohái","房子":"fángzi","時間":"shíjiān","某樣東西":"mǒuyàng dōngxī","什麼都沒有":"shénme dōu méiyǒu","手機":"shǒujī","醫院":"yīyuàn","超級、非常（口語）":"chāojí, fēicháng (kǒuyǔ)","腳踏車":"jiǎotà chē","路面電車":"lùmiàn diànchē","車票":"chēpiào","火車":"huǒchē","月台":"yuètái","停車":"tíngchē","火車站在哪裡？":"huǒchē zhàn zài nǎlǐ?","今天":"jīntiān","明天":"míngtiān","昨天":"zuótiān","現在":"xiànzài","早上":"zǎoshàng","晚上":"wǎnshàng","一個禮拜":"yígè lǐbài","爸爸":"bàba","媽媽":"māma","爸媽":"bàmā","哥哥／弟弟":"gēge / dìdi","姊姊／妹妹":"jiějie / mèimei","兒子":"érzi","女兒":"nǚ'ér","男孩":"nánhái","女孩":"nǚhái","阿公阿嬤":"āgōng āmā","叔叔／舅舅":"shūshu / jiùjiu","阿姨／姑姑":"āyí / gūgu","老公":"lǎogōng","老婆":"lǎopó","結婚了":"jiéhūn le","單身":"dānshēn","離婚了":"líhūn le","結婚":"jiéhūn","朋友／男朋友":"péngyǒu / nán péngyǒu","朋友／女朋友":"péngyǒu / nǚ péngyǒu","鄰居":"línjū","名字":"míngzì","住":"zhù","頭":"tóu","眼睛":"yǎnjīng","耳朵":"ěrduǒ","鼻子":"bízi","嘴巴":"zuǐbā","牙齒":"yáchǐ","脖子／喉嚨":"bózi / hóulóng","手":"shǒu","腿":"tuǐ","腳":"jiǎo","肚子":"dǔzi","背":"bèi","生病":"shēngbìng","健康":"jiànkāng","累":"lèi","發燒":"fāshāo","感冒":"gǎnmào","疼痛":"téngtòng","痛":"tòng","醫生":"yīshēng","藥局":"yàojú","藥":"yào","保險":"bǎoxiǎn","公寓":"gōngyù","房間":"fángjiān","廚房":"chúfáng","浴室":"yùshì","臥室":"wòshì","陽台":"yángtái","樓梯":"lóutī","電梯":"diàntī","房租":"fángzū","房東":"fángdōng","搬家":"bānjiā","鑰匙":"yàoshi","門":"mén","窗戶":"chuānghù","桌子":"zhuōzi","椅子":"yǐzi","床":"chuáng","櫃子":"guìzi","冰箱":"bīngxiāng","暖氣":"nuǎnqì","垃圾":"lèsè","打掃":"dǎsǎo","洗":"xǐ","食物／一餐":"shíwù / yìcān","喝":"hē","麵包":"miànbāo","小麵包":"xiǎo miànbāo","起司":"qǐ sī","香腸":"xiāngcháng","肉":"ròu","魚":"yú","蔬菜":"shūcài","水果":"shuǐguǒ","蘋果":"píngguǒ","蛋":"dàn","牛奶":"niúnǎi","水":"shuǐ","咖啡":"kāfēi","葡萄酒":"pútáo jiǔ","糖":"táng","甜":"tián","好吃":"hǎochī","煮飯":"zhǔfàn","肚子餓":"dǔzi è","帳單":"zhàngdān","小費":"xiǎofèi","買東西":"mǎi dōngxī","商店":"shāngdiàn","價格":"jiàgé","要多少錢":"yào duōshǎo qián","貴":"guì","便宜":"piányi","錢":"qián","法郎":"fǎláng","付錢":"fùqián","收銀台":"shōuyín tái","收據":"shōujù","特價":"tèjià","衣服":"yīfú","褲子":"kùzi","外套":"wàitào","鞋子":"xiézi","尺寸":"chǐcùn","試穿":"shìchuān","換貨":"huànhuò","買":"mǎi","賣":"mài","火車站":"huǒchē zhàn","出發":"chūfā","抵達":"dǐdá","轉乘":"zhuǎnchéng","誤點":"wùdiǎn","機場":"jīchǎng","飛":"fēi","旅行":"lǚxíng","假期":"jiàqī","行李":"xínglǐ","護照":"hùzhào","馬路":"mǎlù","人行道":"rénxíng dào","十字路口":"shízì lùkǒu","右邊":"yòubiān","直走":"zhí zǒu","遠":"yuǎn","近":"jìn","駕照":"jiàzhào","工作（名詞）":"gōngzuò (míngcí)","工作（動詞）":"gōngzuò (dòngcí)","職業":"zhíyè","公司":"gōngsī","同事":"tóngshì","辦公室":"bàngōng shì","職缺":"zhí quē","應徵":"yìngzhēng","求職申請":"qiúzhí shēnqǐng","履歷":"lǚlì","薪水":"xīnshuǐ","會議":"huìyì","下班時間":"xiàbān shíjiān","辭職／解雇":"cízhí / jiěgù","失業":"shīyè","職業訓練":"zhíyè xùnliàn","休息":"xiūxī","客戶":"kèhù","賺錢":"zhuànqián","學校":"xuéxiào","老師":"lǎoshī","學生":"xuéshēng","學習":"xuéxí","考試":"kǎoshì","通過（考試）":"tōngguò (kǎoshì)","作業":"zuòyè","語言":"yǔyán","了解":"liǎojiě","解釋":"jiěshì","重複":"chóngfù","讀大學":"dú dàxué","成績單／證書":"chéngjì dān / zhèngshū","寫":"xiě","讀":"dú","問":"wèn","回答":"huídá","禮拜":"lǐbài","月":"yuè","小時":"xiǎoshí","下午":"xiàwǔ","週末":"zhōumò","星期一":"xīngqí yī","星期二":"xīngqí èr","星期三":"xīngqí sān","星期四":"xīngqí sì","星期五":"xīngqí wǔ","星期六":"xīngqí liù","星期天":"xīngqí tiān","早":"zǎo","晚":"wǎn","晚點":"wǎndiǎn","有時候":"yǒu shíhòu","已經":"yǐjīng","還":"hái","天氣":"tiānqì","太陽":"tàiyáng","雨":"yǔ","下雨":"xiàyǔ","雪":"xuě","冷":"lěng","熱":"rè","雷雨":"léiyǔ","山":"shān","湖":"hú","森林":"sēnlín","花":"huā","貓":"māo","春天":"chūntiān","夏天":"xiàtiān","秋天":"qiūtiān","環境":"huánjìng","空閒時間":"kòngxián shíjiān","玩":"wán","游泳":"yóuyǒng","健行":"jiànxíng","音樂":"yīnyuè","音樂會":"yīnyuè huì","書":"shū","慶典":"qìngdiǎn","邀請":"yāoqǐng","邀請函":"yāoqǐng hán","見面":"jiànmiàn","社團":"shètuán","想（做某事）":"xiǎng (zuò mǒushì)","看電視":"kàn diànshì","打電話":"dǎ diànhuà","訊息／新聞":"xùnxī / xīnwén","寄":"jì","郵局":"yóujú","電子郵件":"diànzi yóujiàn","報紙":"bàozhǐ","說":"shuō","說話":"shuōhuà","講故事":"jiǎng gùshì","意見":"yìjiàn","相信／認為":"xiāngxìn / rènwéi","討論":"tǎolùn","政府機關":"zhèngfǔ jīguān","表格":"biǎogé","填寫":"tiánxiě","簽名":"qiānmíng","地址":"dìzhǐ","登記":"dēngjì","帳戶":"zhànghù","身分證":"shēnfèn zhèng","申請":"shēnqǐng","居留證":"jūliú zhèng","鄉鎮／市公所":"xiāngzhèn / shì gōngsuǒ","稅":"shuì","大":"dà","小":"xiǎo","壞":"huài","快":"kuài","簡單":"jiǎndān","困難":"kùnnán","空":"kōng","難過":"nánguò","大聲":"dàshēng","小聲":"xiǎoshēng","乾淨":"gānjìng","髒":"zàng","重要":"zhòngyào","是":"shì","有":"yǒu","去":"qù","來":"lái","給":"gěi","拿":"ná","看到":"kàndào","聽到":"tīngdào","知道":"zhīdào","想":"xiǎng","找":"zhǎo","需要":"xūyào","幫忙":"bāngmáng","站":"zhàn","躺":"tǎng","起床":"qǐchuáng","開始":"kāishǐ","打開":"dǎkāi","關":"guān","忘記":"wàngjì","能":"néng","一定要":"yídìng yào","想要":"xiǎngyào","可以":"kěyǐ","喜歡":"xǐhuān","試":"shì","哭":"kū","這裡":"zhèlǐ","那裡":"nàlǐ","多":"duō","少":"shǎo","有人":"yǒurén","沒有人":"méiyǒu rén","大家":"dàjiā","為什麼":"wèi shénme","什麼時候":"shénme shíhòu","哪個":"nǎge","不":"bù","也":"yě","因為":"yīnwèi","也許":"yěxǔ","一起":"yìqǐ","夠":"gòu","很樂意":"hěn lèyì","很好，謝謝。你呢？":"hěn hǎo, xièxiè. nǐ ne?","我是安娜。":"wǒ shì ānnà.","很高興認識你。":"hěn gāoxìng rènshí nǐ.","你從哪裡來？":"nǐ cóng nǎlǐ lái?","我來自台灣。":"wǒ láizì táiwān.","你住在哪裡？":"nǐ zhù zài nǎlǐ?","我聽不懂。":"wǒ tīng bù dǒng.","你可以再說一次嗎？":"nǐ kěyǐ zàishuō yícì ma?","你可以說慢一點嗎？":"nǐ kěyǐ shuō màn yìdiǎn ma?","你會說英文嗎？":"nǐ huì shuō yīngwén ma?","這個用德文怎麼說？":"zhège yòng déwén zěnme shuō?","您可以幫我一下嗎？":"nín kěyǐ bāng wǒ yíxià ma?","我想要一杯咖啡。":"wǒ xiǎngyào yìbēi kāfēi.","請問有兩位的位子嗎？":"qǐngwèn yǒu liǎngwèi de wèizi ma?","請給我菜單。":"qǐng gěi wǒ càidān.","麻煩結帳。":"máfán jiézhàng.","這個很好吃。":"zhège hěn hǎochī.","這個多少錢？":"zhège duōshǎo qián?","這個太貴了。":"zhège tàiguì le.","我可以刷卡嗎？":"wǒ kěyǐ shuākǎ ma?","我只是看看。":"wǒ zhǐshì kànkàn.","下一班火車什麼時候開？":"xià yìbān huǒchē shénme shíhòu kāi?","請給我一張到伯恩的車票。":"qǐng gěi wǒ yìzhāng dào bó'ēn de chēpiào.","我需要轉車嗎？":"wǒ xūyào zhuǎnchē ma?","在哪個月台？":"zài nǎge yuètái?","火車誤點了。":"huǒchē wùdiǎn le.","廁所在哪裡？":"cèsuǒ zài nǎlǐ?","我好渴。":"wǒ hǎo kě.","對不起。":"duì bù qǐ.","沒問題。":"méi wèntí.","待會見！":"dài huìjiàn!","現在幾點？":"xiànzài jǐdiǎn?","我沒空。":"wǒ méikòng.","你要一起來嗎？":"nǐ yào yìqǐ lái ma?","今天天氣很好。":"jīntiān tiānqì hěn hǎo.","我吃蘋果":"wǒ chī píngguǒ","你吃蘋果":"nǐ chī píngguǒ","他吃蘋果":"tā chī píngguǒ","我們吃蘋果":"wǒmen chī píngguǒ","你們吃蘋果":"nǐmen chī píngguǒ","他們吃蘋果":"tāmen chī píngguǒ","我吃了蘋果":"wǒ chī le píngguǒ","你吃了蘋果":"nǐ chī le píngguǒ","他吃了蘋果":"tā chī le píngguǒ","我們吃了蘋果":"wǒmen chī le píngguǒ","你們吃了蘋果":"nǐmen chī le píngguǒ","他們吃了蘋果":"tāmen chī le píngguǒ","我喝咖啡":"wǒ hē kāfēi","你喝咖啡":"nǐ hē kāfēi","他喝咖啡":"tā hē kāfēi","我們喝咖啡":"wǒmen hē kāfēi","你們喝咖啡":"nǐmen hē kāfēi","他們喝咖啡":"tāmen hē kāfēi","我喝了咖啡":"wǒ hē le kāfēi","你喝了咖啡":"nǐ hē le kāfēi","他喝了咖啡":"tā hē le kāfēi","我們喝了咖啡":"wǒmen hē le kāfēi","你們喝了咖啡":"nǐmen hē le kāfēi","他們喝了咖啡":"tāmen hē le kāfēi","我煮義大利麵":"wǒ zhǔ yìdàlìmiàn","你煮義大利麵":"nǐ zhǔ yìdàlìmiàn","他煮義大利麵":"tā zhǔ yìdàlìmiàn","我們煮義大利麵":"wǒmen zhǔ yìdàlìmiàn","你們煮義大利麵":"nǐmen zhǔ yìdàlìmiàn","他們煮義大利麵":"tāmen zhǔ yìdàlìmiàn","我煮了義大利麵":"wǒ zhǔ le yìdàlìmiàn","你煮了義大利麵":"nǐ zhǔ le yìdàlìmiàn","他煮了義大利麵":"tā zhǔ le yìdàlìmiàn","我們煮了義大利麵":"wǒmen zhǔ le yìdàlìmiàn","你們煮了義大利麵":"nǐmen zhǔ le yìdàlìmiàn","他們煮了義大利麵":"tāmen zhǔ le yìdàlìmiàn","我買車票":"wǒ mǎi chēpiào","你買車票":"nǐ mǎi chēpiào","他買車票":"tā mǎi chēpiào","我們買車票":"wǒmen mǎi chēpiào","你們買車票":"nǐmen mǎi chēpiào","他們買車票":"tāmen mǎi chēpiào","我買了車票":"wǒ mǎi le chēpiào","你買了車票":"nǐ mǎi le chēpiào","他買了車票":"tā mǎi le chēpiào","我們買了車票":"wǒmen mǎi le chēpiào","你們買了車票":"nǐmen mǎi le chēpiào","他們買了車票":"tāmen mǎi le chēpiào","我住在蘇黎世":"wǒ zhù zài sūlíshì","你住在蘇黎世":"nǐ zhù zài sūlíshì","他住在蘇黎世":"tā zhù zài sūlíshì","我們住在蘇黎世":"wǒmen zhù zài sūlíshì","你們住在蘇黎世":"nǐmen zhù zài sūlíshì","他們住在蘇黎世":"tāmen zhù zài sūlíshì","我住過蘇黎世":"wǒ zhù guò sūlíshì","你住過蘇黎世":"nǐ zhù guò sūlíshì","他住過蘇黎世":"tā zhù guò sūlíshì","我們住過蘇黎世":"wǒmen zhù guò sūlíshì","你們住過蘇黎世":"nǐmen zhù guò sūlíshì","他們住過蘇黎世":"tāmen zhù guò sūlíshì","我很常工作":"wǒ hěn cháng gōngzuò","你很常工作":"nǐ hěn cháng gōngzuò","他很常工作":"tā hěn cháng gōngzuò","我們很常工作":"wǒmen hěn cháng gōngzuò","你們很常工作":"nǐmen hěn cháng gōngzuò","他們很常工作":"tāmen hěn cháng gōngzuò","我工作了很久":"wǒ gōngzuò le hěn jiǔ","你工作了很久":"nǐ gōngzuò le hěn jiǔ","他工作了很久":"tā gōngzuò le hěn jiǔ","我們工作了很久":"wǒmen gōngzuò le hěn jiǔ","你們工作了很久":"nǐmen gōngzuò le hěn jiǔ","他們工作了很久":"tāmen gōngzuò le hěn jiǔ","我學瑞士德文":"wǒ xué ruìshì déwén","你學瑞士德文":"nǐ xué ruìshì déwén","他學瑞士德文":"tā xué ruìshì déwén","我們學瑞士德文":"wǒmen xué ruìshì déwén","你們學瑞士德文":"nǐmen xué ruìshì déwén","他們學瑞士德文":"tāmen xué ruìshì déwén","我學了瑞士德文":"wǒ xué le ruìshì déwén","你學了瑞士德文":"nǐ xué le ruìshì déwén","他學了瑞士德文":"tā xué le ruìshì déwén","我們學了瑞士德文":"wǒmen xué le ruìshì déwén","你們學了瑞士德文":"nǐmen xué le ruìshì déwén","他們學了瑞士德文":"tāmen xué le ruìshì déwén","我踢足球":"wǒ tī zúqiú","你踢足球":"nǐ tī zúqiú","他踢足球":"tā tī zúqiú","我們踢足球":"wǒmen tī zúqiú","你們踢足球":"nǐmen tī zúqiú","他們踢足球":"tāmen tī zúqiú","我踢了足球":"wǒ tī le zúqiú","你踢了足球":"nǐ tī le zúqiú","他踢了足球":"tā tī le zúqiú","我們踢了足球":"wǒmen tī le zúqiú","你們踢了足球":"nǐmen tī le zúqiú","他們踢了足球":"tāmen tī le zúqiú","我去電影院":"wǒ qù diànyǐngyuàn","你去電影院":"nǐ qù diànyǐngyuàn","他去電影院":"tā qù diànyǐngyuàn","我們去電影院":"wǒmen qù diànyǐngyuàn","你們去電影院":"nǐmen qù diànyǐngyuàn","他們去電影院":"tāmen qù diànyǐngyuàn","我去了電影院":"wǒ qù le diànyǐngyuàn","你去了電影院":"nǐ qù le diànyǐngyuàn","他去了電影院":"tā qù le diànyǐngyuàn","我們去了電影院":"wǒmen qù le diànyǐngyuàn","你們去了電影院":"nǐmen qù le diànyǐngyuàn","他們去了電影院":"tāmen qù le diànyǐngyuàn","我很累":"wǒ hěn lèi","你很累":"nǐ hěn lèi","他很累":"tā hěn lèi","我們很累":"wǒmen hěn lèi","你們很累":"nǐmen hěn lèi","他們很累":"tāmen hěn lèi","我之前很累":"wǒ zhīqián hěn lèi","你之前很累":"nǐ zhīqián hěn lèi","他之前很累":"tā zhīqián hěn lèi","我們之前很累":"wǒmen zhīqián hěn lèi","你們之前很累":"nǐmen zhīqián hěn lèi","他們之前很累":"tāmen zhīqián hěn lèi","我肚子餓":"wǒ dǔzi è","你肚子餓":"nǐ dǔzi è","他肚子餓":"tā dǔzi è","我們肚子餓":"wǒmen dǔzi è","你們肚子餓":"nǐmen dǔzi è","他們肚子餓":"tāmen dǔzi è","我之前肚子餓":"wǒ zhīqián dǔzi è","你之前肚子餓":"nǐ zhīqián dǔzi è","他之前肚子餓":"tā zhīqián dǔzi è","我們之前肚子餓":"wǒmen zhīqián dǔzi è","你們之前肚子餓":"nǐmen zhīqián dǔzi è","他們之前肚子餓":"tāmen zhīqián dǔzi è","吃":"chī","煮":"zhǔ","學":"xué","玩／踢":"wán / tī","我":"wǒ","你":"nǐ","他":"tā","我們":"wǒmen","你們":"nǐmen","他們":"tāmen","他／她":"tā / tā","飯":"fàn","麵":"miàn","乾麵":"gànmiàn","湯麵":"tāngmiàn","米粉":"mǐfěn","粥":"zhōu","滷肉飯":"lǔròu fàn","雞肉飯":"jīròu fàn","控肉飯":"kòng ròu fàn","排骨飯":"páigǔ fàn","便當":"biàndāng","牛肉麵":"niúròu miàn","擔仔麵":"dànzǎimiàn","陽春麵":"yángchūn miàn","麻醬麵":"májiàng miàn","炒麵":"chǎomiàn","炒飯":"chǎofàn","蛋炒飯":"dàn chǎofàn","蚵仔麵線":"é zǎi miànxiàn","水餃":"shuǐjiǎo","鍋貼":"guōtiē","小籠包":"xiǎolóng bāo","割包":"gēbāo","肉圓":"ròuyuán","肉粽":"ròuzòng","蘿蔔糕":"luóbo gāo","碗粿":"wǎnguǒ","筒仔米糕":"tǒng zǎi mǐgāo","蔥油餅":"cōngyóubǐng","蛋餅":"dàn bǐng","胡椒餅":"hújiāobǐng","臭豆腐":"chòu dòufǔ","蚵仔煎":"é zǎi jiān","鹽酥雞":"yánsūjī","雞排":"jīpái","大腸包小腸":"dàcháng bāo xiǎocháng","烤香腸":"kǎo xiāngcháng","地瓜球":"dìguā qiú","甜不辣":"tiánbùlà","滷味":"lǔwèi","烤魷魚":"kǎo yóuyú","花枝丸":"huāzhī wán","糖葫蘆":"tánghúlú","車輪餅":"chēlúnbǐng","雞蛋糕":"jīdàn gāo","烤玉米":"kǎo yùmǐ","烤地瓜":"kǎo dìguā","魚丸湯":"yúwántāng","貢丸湯":"gòngwántāng","肉羹":"ròugēng","四神湯":"sìshéntāng","麻油雞":"máyóu jī","酸辣湯":"suānlàtāng","豆花":"dòuhuā","愛玉":"àiyù","仙草":"xiāncǎo","芋圓":"yùyuán","湯圓":"tāngyuán","紅豆湯":"hóngdòu tāng","芒果冰":"mángguǒ bīng","剉冰":"cuò bīng","鳳梨酥":"fènglísū","牛軋糖":"niúgátáng","太陽餅":"tàiyáng bǐng","珍珠奶茶":"zhēnzhū nǎichá","奶茶":"nǎichá","紅茶":"hóngchá","綠茶":"lǜchá","烏龍茶":"wūlóngchá","青草茶":"qīngcǎochá","冬瓜茶":"dōngguāchá","檸檬愛玉":"níngméng àiyù","豆漿":"dòujiāng","木瓜牛奶":"mùguā niúnǎi","甘蔗汁":"gānzhè zhī","酸梅湯":"suānméi tāng","米漿":"mǐjiāng","老闆，我要一碗滷肉飯。":"lǎobǎn, wǒ yào yìwǎn lǔròu fàn.","內用還是外帶？":"nèi yòng háishì wàidài?","我要外帶。":"wǒ yào wàidài.","我要內用。":"wǒ yào nèi yòng.","請問有菜單嗎？":"qǐngwèn yǒu càidān ma?","這個要多少錢？":"zhège yào duōshǎo qián?","不要加香菜。":"búyào jiā xiāngcài.","可以加辣嗎？":"kěyǐ jiā là ma?","我不吃辣。":"wǒ bùchī là.","大碗還是小碗？":"dàwǎn háishì xiǎowǎn?","請幫我打包。":"qǐng bāng wǒ dǎbāo.","好吃！再來一碗！":"hǎochī! zài lái yìwǎn!","我吃素。":"wǒ chīsù.","請問有推薦的嗎？":"qǐngwèn yǒu tuījiàn de ma?","我要一杯珍珠奶茶，半糖少冰。":"wǒ yào yìbēi zhēnzhū nǎichá, bàn táng shǎo bīng.","可以去冰嗎？":"kěyǐ qù bīng ma?","無糖就好。":"wú táng jiù hǎo.","大杯還是中杯？":"dà bēi háishì zhōng bēi?","請加珍珠。":"qǐng jiā zhēnzhū.","我們去逛夜市吧！":"wǒmen qùguàng yèshì ba!","夜市的小吃很好吃。":"yèshì de xiǎochī hěn hǎochī.","臭豆腐有點臭，可是很好吃。":"chòu dòufǔ yǒudiǎn chòu, kěshì hěn hǎochī.","請問要排隊嗎？":"qǐngwèn yào páiduì ma?","我要一份鹽酥雞，加九層塔。":"wǒ yào yífèn yánsūjī, jiā jiǔcéng tǎ.","這裡只收現金。":"zhèlǐ zhǐ shōu xiànjīn.","吃飽了嗎？":"chībǎo le ma?","辛苦了！":"xīnkǔ le!","不客氣。":"bù kèqì.","沒關係。":"méi guānxì.","謝謝，我自己來就好。":"xièxiè, wǒ zìjǐ lái jiù hǎo.","我不太會說中文。":"wǒ bù tài huì shuō zhōngwén.","請說慢一點。":"qǐng shuō màn yìdiǎn.","我是瑞士人。":"wǒ shì ruìshì rén.","你是台灣人嗎？":"nǐ shì táiwān rén ma?","我最近在學中文。":"wǒ zuìjìn zài xué zhōngwén.","請問捷運站在哪裡？":"qǐngwèn jiéyùn zhàn zài nǎlǐ?","我要買悠遊卡。":"wǒ yào mǎi yōuyóu kǎ.","這班公車有到火車站嗎？":"zhè bān gōngchē yǒu dào huǒchē zhàn ma?","請問怎麼去夜市？":"qǐngwèn zěnme qù yèshì?","可以刷悠遊卡嗎？":"kěyǐ shuā yōuyóu kǎ ma?","請問可以幫我加熱嗎？":"qǐngwèn kěyǐ bāng wǒ jiārè ma?","需要袋子嗎？":"xūyào dàizi ma?"};
 
 /* ---------- 英文、拼音掛到資料上 ---------- */
 WORDS.forEach(w => { w.en = EN_DAILY[w.ch] || ""; });
@@ -1619,15 +1630,154 @@ document.addEventListener("click", e => {
 let showPy = load("chde-py", true);
 function applyPy(){
   document.body.classList.toggle("nopy", !showPy);
-  const b = document.getElementById("pyBtn"); if(b) b.setAttribute("aria-pressed", String(showPy));
+  const b = document.getElementById("pyBtn");
+  if(b){ b.setAttribute("aria-pressed", String(showPy)); b.textContent = "拼音 Pinyin：" + (showPy ? "開" : "關"); }
 }
+let showPyZh = load("chde-pyzh", true);
+function applyPyZh(){
+  const v = document.getElementById("view-chinese"); if(v) v.classList.toggle("nopyc", !showPyZh);
+  const b = document.getElementById("cpyBtn");
+  if(b){ b.setAttribute("aria-pressed", String(showPyZh)); b.textContent = "Pinyin: " + (showPyZh ? "on" : "off"); }
+}
+document.getElementById("cpyBtn").addEventListener("click", () => { showPyZh = !showPyZh; save("chde-pyzh", showPyZh); applyPyZh(); });
 document.getElementById("pyBtn").addEventListener("click", () => { showPy = !showPy; save("chde-py", showPy); applyPy(); });
+
+/* ---------- 台灣道地小吃、飲料與生活用語 ---------- */
+const TW_CATS = [
+  {id: "t_stap", en: "Rice & noodles"}, {id: "t_dump", en: "Buns, dumplings & pancakes"}, {id: "t_night", en: "Night market snacks"},
+  {id: "t_soup", en: "Soups"}, {id: "t_sweet", en: "Desserts"}, {id: "t_drink", en: "Drinks"}
+];
+const TW_FOOD = [
+  {c:"t_stap", zh:"飯", en:"Rice", note:"Steamed white rice. 吃飯 also means “to have a meal”."},
+  {c:"t_stap", zh:"麵", en:"Noodles", note:"Wheat noodles."},
+  {c:"t_stap", zh:"乾麵", en:"Dry noodles", note:"Noodles tossed in sauce and served without soup."},
+  {c:"t_stap", zh:"湯麵", en:"Noodle soup", note:"Noodles served in a hot broth."},
+  {c:"t_stap", zh:"米粉", en:"Rice vermicelli", note:"Thin rice noodles, stir-fried or in soup."},
+  {c:"t_stap", zh:"粥", en:"Rice porridge", note:"Congee, often eaten for breakfast."},
+  {c:"t_stap", zh:"滷肉飯", en:"Braised pork rice", note:"Minced pork braised in soy sauce, spooned over rice."},
+  {c:"t_stap", zh:"雞肉飯", en:"Shredded chicken rice", note:"Chiayi-style rice topped with shredded chicken."},
+  {c:"t_stap", zh:"控肉飯", en:"Braised pork belly rice", note:"A thick slice of slow-braised pork belly over rice."},
+  {c:"t_stap", zh:"排骨飯", en:"Pork chop rice", note:"Fried pork chop with rice, often sold as a lunch box."},
+  {c:"t_stap", zh:"便當", en:"Lunch box", note:"A boxed meal with rice and side dishes."},
+  {c:"t_stap", zh:"牛肉麵", en:"Beef noodle soup", note:"Taiwan’s signature noodle soup with braised beef."},
+  {c:"t_stap", zh:"擔仔麵", en:"Danzai noodles", note:"A small bowl of noodles with minced pork, a Tainan specialty."},
+  {c:"t_stap", zh:"陽春麵", en:"Plain noodle soup", note:"Simple noodle soup with scallions and little else."},
+  {c:"t_stap", zh:"麻醬麵", en:"Sesame paste noodles", note:"Noodles in a rich sesame sauce."},
+  {c:"t_stap", zh:"炒麵", en:"Fried noodles", note:"Stir-fried noodles."},
+  {c:"t_stap", zh:"炒飯", en:"Fried rice", note:"Stir-fried rice."},
+  {c:"t_stap", zh:"蛋炒飯", en:"Egg fried rice", note:"Fried rice with scrambled egg."},
+  {c:"t_stap", zh:"蚵仔麵線", en:"Oyster vermicelli", note:"A thick soup with oysters and very thin noodles."},
+  {c:"t_dump", zh:"水餃", en:"Boiled dumplings", note:"Dumplings cooked in water."},
+  {c:"t_dump", zh:"鍋貼", en:"Pan-fried dumplings", note:"Dumplings fried so the bottom turns crispy."},
+  {c:"t_dump", zh:"小籠包", en:"Soup dumplings", note:"Steamed dumplings filled with hot soup."},
+  {c:"t_dump", zh:"割包", en:"Gua bao", note:"A steamed bun filled with braised pork belly, pickled greens and peanut powder."},
+  {c:"t_dump", zh:"肉圓", en:"Taiwanese meatball", note:"A chewy, translucent dumpling with a pork filling."},
+  {c:"t_dump", zh:"肉粽", en:"Rice dumpling", note:"Sticky rice with pork, wrapped in bamboo leaves."},
+  {c:"t_dump", zh:"蘿蔔糕", en:"Turnip cake", note:"A pan-fried cake of radish and rice flour."},
+  {c:"t_dump", zh:"碗粿", en:"Savory rice pudding", note:"A steamed rice cake served in a bowl."},
+  {c:"t_dump", zh:"筒仔米糕", en:"Cup sticky rice", note:"Steamed sticky rice with pork, cooked in a small cup."},
+  {c:"t_dump", zh:"蔥油餅", en:"Scallion pancake", note:"A flaky fried pancake with green onions."},
+  {c:"t_dump", zh:"蛋餅", en:"Egg crepe", note:"A thin pancake rolled around egg, a classic breakfast."},
+  {c:"t_dump", zh:"胡椒餅", en:"Pepper bun", note:"A peppery pork bun baked against the wall of a clay oven."},
+  {c:"t_night", zh:"臭豆腐", en:"Stinky tofu", note:"Fermented tofu with a strong smell, usually fried and eaten with pickled cabbage."},
+  {c:"t_night", zh:"蚵仔煎", en:"Oyster omelet", note:"Eggs, oysters and starch, topped with a sweet-savory sauce."},
+  {c:"t_night", zh:"鹽酥雞", en:"Salty crispy chicken", note:"Fried chicken bites with pepper and fried basil."},
+  {c:"t_night", zh:"雞排", en:"Fried chicken cutlet", note:"A huge, crispy chicken cutlet, as big as your face."},
+  {c:"t_night", zh:"大腸包小腸", en:"Sausage in sticky rice sausage", note:"A grilled sausage tucked into a sticky rice “sausage”."},
+  {c:"t_night", zh:"烤香腸", en:"Grilled sausage", note:"Sweet, juicy Taiwanese sausage grilled over charcoal."},
+  {c:"t_night", zh:"地瓜球", en:"Sweet potato balls", note:"Crispy fried balls with a chewy center."},
+  {c:"t_night", zh:"甜不辣", en:"Fish cake tempura", note:"Fried fish paste served with a sweet sauce."},
+  {c:"t_night", zh:"滷味", en:"Braised snacks", note:"Pick your own ingredients, then they are braised or boiled and seasoned."},
+  {c:"t_night", zh:"烤魷魚", en:"Grilled squid", note:"Squid grilled on a skewer."},
+  {c:"t_night", zh:"花枝丸", en:"Cuttlefish balls", note:"Bouncy seafood balls."},
+  {c:"t_night", zh:"糖葫蘆", en:"Candied fruit skewers", note:"Fruit coated in a thin shell of hard sugar."},
+  {c:"t_night", zh:"車輪餅", en:"Wheel cake", note:"A round cake filled with red bean paste or custard."},
+  {c:"t_night", zh:"雞蛋糕", en:"Mini egg cakes", note:"Small, fluffy cakes sold in paper bags."},
+  {c:"t_night", zh:"烤玉米", en:"Grilled corn", note:"Corn brushed with sauce and grilled."},
+  {c:"t_night", zh:"烤地瓜", en:"Roasted sweet potato", note:"A sweet potato roasted until it is soft and sticky."},
+  {c:"t_soup", zh:"魚丸湯", en:"Fish ball soup", note:"A clear soup with fish balls."},
+  {c:"t_soup", zh:"貢丸湯", en:"Pork ball soup", note:"A clear soup with springy pork balls."},
+  {c:"t_soup", zh:"肉羹", en:"Thick pork soup", note:"A thick soup with strips of battered pork."},
+  {c:"t_soup", zh:"四神湯", en:"Four herbs soup", note:"A herbal soup, usually with pork intestines."},
+  {c:"t_soup", zh:"麻油雞", en:"Sesame oil chicken soup", note:"A warming soup with ginger and rice wine, popular in winter."},
+  {c:"t_soup", zh:"酸辣湯", en:"Hot and sour soup", note:"A thick, peppery and tangy soup."},
+  {c:"t_sweet", zh:"豆花", en:"Tofu pudding", note:"Silky tofu pudding with toppings, hot or cold."},
+  {c:"t_sweet", zh:"愛玉", en:"Aiyu jelly", note:"A light jelly made from aiyu seeds, often served with lemon."},
+  {c:"t_sweet", zh:"仙草", en:"Grass jelly", note:"A black herbal jelly, served hot or cold."},
+  {c:"t_sweet", zh:"芋圓", en:"Taro balls", note:"Chewy dessert balls made from taro."},
+  {c:"t_sweet", zh:"湯圓", en:"Glutinous rice balls", note:"Sweet rice balls served in soup."},
+  {c:"t_sweet", zh:"紅豆湯", en:"Red bean soup", note:"A sweet soup made of red beans."},
+  {c:"t_sweet", zh:"芒果冰", en:"Mango shaved ice", note:"Shaved ice piled with fresh mango."},
+  {c:"t_sweet", zh:"剉冰", en:"Shaved ice", note:"Shaved ice with sweet toppings."},
+  {c:"t_sweet", zh:"鳳梨酥", en:"Pineapple cake", note:"A buttery pastry with pineapple filling, a popular gift."},
+  {c:"t_sweet", zh:"牛軋糖", en:"Nougat", note:"Chewy milk nougat candy."},
+  {c:"t_sweet", zh:"太陽餅", en:"Sun cake", note:"A flaky pastry with a sweet maltose filling, from Taichung."},
+  {c:"t_drink", zh:"珍珠奶茶", en:"Bubble milk tea", note:"Milk tea with chewy tapioca pearls, invented in Taiwan."},
+  {c:"t_drink", zh:"奶茶", en:"Milk tea", note:"Tea with milk."},
+  {c:"t_drink", zh:"紅茶", en:"Black tea", note:"Black tea, often sold with ice and sugar."},
+  {c:"t_drink", zh:"綠茶", en:"Green tea", note:"Green tea."},
+  {c:"t_drink", zh:"烏龍茶", en:"Oolong tea", note:"A partly oxidized tea, grown in the Taiwanese mountains."},
+  {c:"t_drink", zh:"青草茶", en:"Herbal tea", note:"A bitter-sweet herbal drink."},
+  {c:"t_drink", zh:"冬瓜茶", en:"Winter melon tea", note:"A sweet brown drink made from winter melon."},
+  {c:"t_drink", zh:"檸檬愛玉", en:"Lemon aiyu drink", note:"A refreshing drink with aiyu jelly and lemon."},
+  {c:"t_drink", zh:"豆漿", en:"Soy milk", note:"Fresh soy milk, a breakfast favorite."},
+  {c:"t_drink", zh:"木瓜牛奶", en:"Papaya milk", note:"A smoothie of papaya and milk."},
+  {c:"t_drink", zh:"甘蔗汁", en:"Sugarcane juice", note:"Freshly pressed sugarcane juice."},
+  {c:"t_drink", zh:"酸梅湯", en:"Sour plum drink", note:"A sweet and sour smoked plum drink."},
+  {c:"t_drink", zh:"米漿", en:"Rice milk", note:"A warm drink made from rice and peanuts."}
+];
+const TW_SCATS = [["tw_order","Taiwan: ordering food"],["tw_drink","Taiwan: bubble tea orders"],["tw_market","Taiwan: night market"],["tw_daily","Taiwan: daily life"],["tw_transit","Taiwan: transport & shops"]];
+const TW_SENT = [
+  {c:"tw_order", zh:"老闆，我要一碗滷肉飯。", en:"Boss, I’d like a bowl of braised pork rice."},
+  {c:"tw_order", zh:"內用還是外帶？", en:"Eating here or taking out?"},
+  {c:"tw_order", zh:"我要外帶。", en:"Takeout, please."},
+  {c:"tw_order", zh:"我要內用。", en:"For here, please."},
+  {c:"tw_order", zh:"請問有菜單嗎？", en:"Do you have a menu?"},
+  {c:"tw_order", zh:"這個要多少錢？", en:"How much does this one cost?"},
+  {c:"tw_order", zh:"不要加香菜。", en:"No cilantro, please."},
+  {c:"tw_order", zh:"可以加辣嗎？", en:"Can I have it spicy?"},
+  {c:"tw_order", zh:"我不吃辣。", en:"I don’t eat spicy food."},
+  {c:"tw_order", zh:"大碗還是小碗？", en:"Large or small bowl?"},
+  {c:"tw_order", zh:"請幫我打包。", en:"Please pack it to go."},
+  {c:"tw_order", zh:"好吃！再來一碗！", en:"Delicious! One more bowl!"},
+  {c:"tw_order", zh:"我吃素。", en:"I’m vegetarian."},
+  {c:"tw_order", zh:"請問有推薦的嗎？", en:"Do you have any recommendations?"},
+  {c:"tw_drink", zh:"我要一杯珍珠奶茶，半糖少冰。", en:"One bubble milk tea, half sugar, less ice."},
+  {c:"tw_drink", zh:"可以去冰嗎？", en:"Can I have it with no ice?"},
+  {c:"tw_drink", zh:"無糖就好。", en:"No sugar is fine."},
+  {c:"tw_drink", zh:"大杯還是中杯？", en:"Large or medium?"},
+  {c:"tw_drink", zh:"請加珍珠。", en:"Please add pearls."},
+  {c:"tw_market", zh:"我們去逛夜市吧！", en:"Let’s go to the night market!"},
+  {c:"tw_market", zh:"夜市的小吃很好吃。", en:"The night market snacks are delicious."},
+  {c:"tw_market", zh:"臭豆腐有點臭，可是很好吃。", en:"Stinky tofu smells a bit, but it tastes great."},
+  {c:"tw_market", zh:"請問要排隊嗎？", en:"Do we need to queue?"},
+  {c:"tw_market", zh:"我要一份鹽酥雞，加九層塔。", en:"One salty crispy chicken with fried basil, please."},
+  {c:"tw_market", zh:"這裡只收現金。", en:"They only take cash here."},
+  {c:"tw_daily", zh:"吃飽了嗎？", en:"Have you eaten? (a common greeting)"},
+  {c:"tw_daily", zh:"辛苦了！", en:"Thanks for your hard work!"},
+  {c:"tw_daily", zh:"不客氣。", en:"You’re welcome."},
+  {c:"tw_daily", zh:"沒關係。", en:"It’s okay. No worries."},
+  {c:"tw_daily", zh:"謝謝，我自己來就好。", en:"Thanks, I can do it myself."},
+  {c:"tw_daily", zh:"我不太會說中文。", en:"I don’t speak much Chinese."},
+  {c:"tw_daily", zh:"請說慢一點。", en:"Please speak a bit more slowly."},
+  {c:"tw_daily", zh:"我是瑞士人。", en:"I’m Swiss."},
+  {c:"tw_daily", zh:"你是台灣人嗎？", en:"Are you Taiwanese?"},
+  {c:"tw_daily", zh:"我最近在學中文。", en:"I’ve been learning Chinese lately."},
+  {c:"tw_transit", zh:"請問捷運站在哪裡？", en:"Excuse me, where is the MRT station?"},
+  {c:"tw_transit", zh:"我要買悠遊卡。", en:"I’d like to buy an EasyCard."},
+  {c:"tw_transit", zh:"這班公車有到火車站嗎？", en:"Does this bus go to the train station?"},
+  {c:"tw_transit", zh:"請問怎麼去夜市？", en:"How do I get to the night market?"},
+  {c:"tw_transit", zh:"可以刷悠遊卡嗎？", en:"Can I pay with an EasyCard?"},
+  {c:"tw_transit", zh:"請問可以幫我加熱嗎？", en:"Could you heat this up for me? (at a convenience store)"},
+  {c:"tw_transit", zh:"需要袋子嗎？", en:"Do you need a bag?"}
+];
+TW_CATS.forEach(c => { EN_CATS[c.id] = c.en; });
 
 /* ---------- Learn Chinese（英文介面） ---------- */
 let cmode = "words", cdeck = "daily", ccat = "all", cquery = "", csc = "all", cqdeck = "daily", CQ = null;
-const C_DECKS = [["daily", "Everyday words"], ["b1", "B1 topics"]];
-const C_SCATS = [["all","All"],["intro","Greetings"],["talk","Communication"],["food","Restaurant"],["shop","Shopping"],["move","Transport"],["daily","Daily life"],["pat_pres","Basic patterns: present"],["pat_perf","Basic patterns: past"]];
-const CQ_DECKS = [["daily","Everyday words"],["b1","B1 words"],["phrases","Everyday phrases"],["patterns","Basic patterns"]];
+const C_DECKS = [["daily", "Everyday words"], ["b1", "B1 topics"], ["food", "Taiwan food"]];
+const C_SCATS = [["all","All"],["intro","Greetings"],["talk","Communication"],["food","Restaurant"],["shop","Shopping"],["move","Transport"],["daily","Daily life"],["pat_pres","Basic patterns: present"],["pat_perf","Basic patterns: past"], ...TW_SCATS];
+const CQ_DECKS = [["daily","Everyday words"],["b1","B1 words"],["phrases","Everyday phrases"],["patterns","Basic patterns"],["food","Taiwan food"],["twphr","Taiwan phrases"]];
 const CQ_MODES = {zh2en:"Chinese → English", en2zh:"English → Chinese", listen:"Listening → English"};
 
 function updateCNote(){
@@ -1647,23 +1797,26 @@ function cRow(it){
     <div class="cmain"><span class="chz" lang="zh-TW">${it.zh}</span>${zhBtn(it.zh, "")}${it.src ? starBtn(it.src) : ""}</div>
     <div class="cpy">${PY[it.zh] || ""}</div>
     <div class="cen">${it.en}</div>
+    ${it.note ? `<div class="cnote">${it.note}</div>` : ""}
     ${it.ch ? `<div class="csw">Swiss German: <span lang="gsw">${it.ch}</span>${playBtn(it.say || it.ch, "small")}</div>` : ""}
   </div>`;
 }
 function cWordItems(){
-  const src = cdeck === "b1"
+  const src = cdeck === "food"
+    ? TW_FOOD.map(w => ({c: w.c, zh: w.zh, en: w.en, note: w.note, ch: "", say: "", src: "t|" + w.zh}))
+    : cdeck === "b1"
     ? B1.map(w => ({c: w.c, zh: w.zh, en: w.en, ch: w.ch, say: w.ch, src: "b|" + w.de}))
     : WORDS.map(w => ({c: w.c, zh: w.zh, en: w.en, ch: w.ch, say: w.say || w.ch, src: "d|" + w.ch}));
   const q = cquery.toLowerCase();
   return src.filter(it => (ccat === "all" || it.c === ccat) &&
-    (!q || [it.zh, it.en, PY[it.zh] || "", it.ch].some(s => s.toLowerCase().includes(q))));
+    (!q || [it.zh, it.en, PY[it.zh] || "", it.ch, it.note || ""].some(s => s.toLowerCase().includes(q))));
 }
 function cWordsList(){
   const items = cWordItems();
   return items.length ? items.map(cRow).join("") : `<div class="empty">No matches.</div>`;
 }
 function cWords(el){
-  const cats = cdeck === "b1" ? B1_CATS : CATS;
+  const cats = cdeck === "b1" ? B1_CATS : cdeck === "food" ? TW_CATS : CATS;
   const chips = [{id: "all", name: "All"}, ...cats.map(c => ({id: c.id, name: EN_CATS[c.id]}))]
     .map(c => `<button type="button" class="chip" data-ccat="${c.id}" aria-pressed="${c.id === ccat}">${c.name}</button>`).join("");
   el.innerHTML = `
@@ -1673,6 +1826,7 @@ function cWords(el){
     <div class="list" id="clist">${cWordsList()}</div>`;
 }
 function cSentItems(){
+  if(csc.indexOf("tw_") === 0) return TW_SENT.filter(s => s.c === csc).map(s => ({zh: s.zh, en: s.en, ch: "", src: "p|" + s.zh}));
   if(csc === "pat_pres") return VS.filter(s => s.tense === "pres");
   if(csc === "pat_perf") return VS.filter(s => s.tense === "perf");
   return SENTS.filter(s => csc === "all" || s.c === csc);
@@ -1680,12 +1834,14 @@ function cSentItems(){
 function cSent(el){
   const chips = C_SCATS.map(([k, n]) => `<button type="button" class="chip" data-csc="${k}" aria-pressed="${csc === k}">${n}</button>`).join("");
   el.innerHTML = `<div class="chips" style="margin-bottom:14px">${chips}</div>
-    <div class="list">${cSentItems().map(s => cRow({zh: s.zh, en: s.en, ch: s.ch, say: s.ch, src: (csc.indexOf("pat") === 0 ? "v|" : "s|") + s.ch})).join("")}</div>`;
+    <div class="list">${cSentItems().map(s => cRow({zh: s.zh, en: s.en, ch: s.ch || "", say: s.ch || "", src: s.src || ((csc.indexOf("pat") === 0 ? "v|" : "s|") + s.ch)})).join("")}</div>`;
 }
 
 /* 測驗：中文 ↔ 英文 */
 function cPool(k){
-  const src = k === "b1" ? B1.map(w => ({zh: w.zh, en: w.en, ch: w.ch, say: w.ch}))
+  const src = k === "food" ? TW_FOOD.map(w => ({zh: w.zh, en: w.en, ch: "", say: ""}))
+    : k === "twphr" ? TW_SENT.map(s => ({zh: s.zh, en: s.en, ch: "", say: ""}))
+    : k === "b1" ? B1.map(w => ({zh: w.zh, en: w.en, ch: w.ch, say: w.ch}))
     : k === "phrases" ? SENTS.map(s => ({zh: s.zh, en: s.en, ch: s.ch, say: s.ch}))
     : k === "patterns" ? VS.map(s => ({zh: s.zh, en: s.en, ch: s.ch, say: s.ch}))
     : WORDS.map(w => ({zh: w.zh, en: w.en, ch: w.ch, say: w.say || w.ch}));
@@ -1795,9 +1951,8 @@ const NCOLS = ["id","title","body","tags","createdAt","updatedAt","deleted"];
 let BANK = load(BANK_KEY, null) || {};
 BANK.words = BANK.words || []; BANK.notes = BANK.notes || [];
 BANK.since = BANK.since || 0; BANK.lastSync = BANK.lastSync || 0;
-let SYNC_CFG = load(CFG_KEY, null) || {url: "", enabled: false};
-if(SYNC_CFG.secret !== undefined){ SYNC_CFG.enabled = !!SYNC_CFG.url; delete SYNC_CFG.secret; }
-if(!SYNC_CFG.url && DEFAULT_SYNC_URL) SYNC_CFG.url = DEFAULT_SYNC_URL;
+let SYNC_CFG = load(CFG_KEY, null) || {};
+SYNC_CFG = {url: SYNC_CFG.url || DEFAULT_SYNC_URL || "", userDisabled: !!SYNC_CFG.userDisabled};
 let mtab = "words", mfilter = "all", mtag = "", mq = "", nq = "", medit = null, RV = null, rvDir = "zh";
 const syncState = {busy: false, error: "", timer: null};
 
@@ -1826,6 +1981,8 @@ function srcItem(code){
   if(k === "b"){ w = B1.find(x => x.de === key); return w && {type: "word", zh: w.zh, pinyin: PY[w.zh] || "", en: w.en || "", ch: w.ch, de: w.de || ""}; }
   if(k === "s"){ w = SENTS.find(x => x.ch === key); return w && {type: "sentence", zh: w.zh, pinyin: PY[w.zh] || "", en: w.en || "", ch: w.ch, de: w.de || ""}; }
   if(k === "v"){ w = VS.find(x => x.ch === key); return w && {type: "sentence", zh: w.zh, pinyin: PY[w.zh] || "", en: w.en || "", ch: w.ch, de: w.de || ""}; }
+  if(k === "t"){ w = TW_FOOD.find(x => x.zh === key); return w && {type: "word", zh: w.zh, pinyin: PY[w.zh] || "", en: w.en + (w.note ? " — " + w.note : ""), ch: "", de: ""}; }
+  if(k === "p"){ w = TW_SENT.find(x => x.zh === key); return w && {type: "sentence", zh: w.zh, pinyin: PY[w.zh] || "", en: w.en, ch: "", de: ""}; }
   return null;
 }
 function starBtn(code){
@@ -1861,7 +2018,7 @@ async function autoPinyin(zh){
 
 /* ---------- 畫面 ---------- */
 function badgeText(){
-  if(!syncConfigured()) return SYNC_CFG.url ? "同步未啟用（資料只存在這個瀏覽器）" : "未設定同步（資料只存在這個瀏覽器）";
+  if(!syncConfigured()) return SYNC_CFG.url ? "同步已停用（資料只存在這個瀏覽器）" : "未設定同步（資料只存在這個瀏覽器）";
   if(syncState.busy) return "同步中…";
   if(syncState.error) return "同步失敗：" + syncState.error;
   const n = dirtyCount();
@@ -2022,18 +2179,18 @@ function rvGrade(ok){
 }
 
 /* 同步設定與備份 */
-function syncConfigured(){ return !!(SYNC_CFG.url && SYNC_CFG.enabled); }
+function syncConfigured(){ return !!(SYNC_CFG.url && !SYNC_CFG.userDisabled); }
 function mSync(el){
   const on = syncConfigured();
   el.innerHTML = `<div class="mset">
-    <p class="deck-note">把資料同步到你自己的 Google 試算表。這台裝置目前：<b>${on ? "已啟用同步" : "未啟用同步"}</b>。</p>
+    <p class="deck-note">把資料同步到你自己的 Google 試算表。這台裝置目前：<b>${on ? "已啟用，打開網頁就會自動同步" : "已停用同步"}</b>。</p>
     <label for="s-url">Apps Script 網址（結尾是 /exec）</label>
     <input id="s-url" value="${hx(SYNC_CFG.url)}" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
-    <div class="btnrow"><button type="button" class="btn" data-ssave>${on ? "重新測試連線" : "啟用同步並測試連線"}</button>
+    <div class="btnrow"><button type="button" class="btn" data-ssave>${on ? "測試連線" : "重新啟用並測試連線"}</button>
       <button type="button" class="btn ghost" data-ssync>立即同步</button>
       <button type="button" class="btn ghost" data-sclear>停用同步</button></div>
     <div class="feedback" id="s-msg"></div>
-    <p class="deck-note">這個版本沒有密碼：任何知道這串網址、並在自己的瀏覽器按下「啟用同步」的人，都能讀取和修改這份試算表。請不要把網址分享給別人。</p>
+    <p class="deck-note">這個版本沒有密碼：任何人打開這個網站，都會自動連到這份試算表，能讀取和修改裡面的字庫與筆記。請不要把網站分享給你不想讓他看到資料的人；不想同步的裝置可以按「停用同步」。</p>
     <hr style="border:none;border-top:1px solid var(--line);width:100%">
     <p class="deck-note">備份：把字庫和筆記存成檔案，或從檔案還原（會和現有資料合併，較新的為準）。</p>
     <div class="btnrow"><button type="button" class="btn ghost" data-bexport>匯出備份</button>
@@ -2167,13 +2324,13 @@ document.getElementById("view-mine").addEventListener("click", async e => {
   if(t.closest("[data-ssave]")){
     const url = document.getElementById("s-url").value.trim();
     const p = urlProblem(url); if(p){ sMsg(p, true); return; }
-    const prev = SYNC_CFG; SYNC_CFG = {url, enabled: true}; sMsg("測試連線中…");
+    const prev = SYNC_CFG; SYNC_CFG = {url, userDisabled: false}; sMsg("測試連線中…");
     try{ await callScript({action: "ping"}); save(CFG_KEY, SYNC_CFG); sMsg("連線成功，正在第一次同步…"); renderMine(); sMsg("連線成功，正在第一次同步…"); syncNow(); }
     catch(err){ SYNC_CFG = prev; sMsg(err.message, true); }
     return;
   }
   if(t.closest("[data-ssync]")){ if(!syncConfigured()){ sMsg("這台裝置還沒啟用同步", true); return; } sMsg("同步中…"); syncNow(); return; }
-  if(t.closest("[data-sclear]")){ SYNC_CFG.enabled = false; save(CFG_KEY, SYNC_CFG); renderMine(); sMsg("已停用同步（字庫資料還留在這個瀏覽器裡）"); return; }
+  if(t.closest("[data-sclear]")){ SYNC_CFG.userDisabled = true; save(CFG_KEY, SYNC_CFG); renderMine(); sMsg("已停用同步（字庫資料還留在這個瀏覽器裡）"); return; }
   if(t.closest("[data-bexport]")){ exportBackup(); return; }
 });
 document.getElementById("view-mine").addEventListener("input", e => {
@@ -2187,6 +2344,36 @@ document.getElementById("view-mine").addEventListener("change", async e => {
     if(p && !p.value.trim() && zh){ try{ p.value = await autoPinyin(zh); fMsg("拼音是自動產生的，請檢查一下。"); }catch(err){} }
   }
 });
+
+/* ---------- 音源檢查：看每個紅色按鈕用的是你生成的錄音，還是瀏覽器語音 ---------- */
+let auditOn = false, auditObs = null, auditTimer = null;
+function auditScan(){
+  const bar = document.getElementById("auditbar"), view = document.querySelector(".view:not([hidden])");
+  if(!bar || !view) return;
+  const clips = loadClips(); let rec = 0, tts = 0; const miss = new Set();
+  view.querySelectorAll(".play[data-say]").forEach(b => {
+    if(b.dataset.zh === "1"){ b.dataset.src = "zh"; return; }
+    if(b.dataset.std === "1"){ b.dataset.src = "std"; return; }
+    if(clips[b.dataset.say]){ b.dataset.src = "rec"; rec++; } else { b.dataset.src = "tts"; tts++; miss.add(b.dataset.say); }
+  });
+  let t;
+  if(CLIPS === null) t = "錄音檔還在載入…";
+  else if(!Object.keys(CLIPS).length) t = "沒有載入到 swiss-audio.json，所有紅色按鈕都會改用瀏覽器語音。請確認它和 index.html 放在同一個位置。";
+  else t = "這一頁的瑞士德語（紅色）按鈕：" + rec + " 個用你生成的錄音（綠色實線框），" + tts + " 個用瀏覽器語音（橘色虛線框）。" +
+    (tts ? " 沒有錄音的：" + [...miss].slice(0, 6).join("、") + (miss.size > 6 ? "…" : "") : "");
+  bar.textContent = t;
+}
+function auditSchedule(){ clearTimeout(auditTimer); auditTimer = setTimeout(auditScan, 120); }
+function setAudit(on){
+  auditOn = on; document.body.classList.toggle("audit", on);
+  const b = document.getElementById("audBtn"); if(b) b.setAttribute("aria-pressed", String(on));
+  if(on){
+    auditObs = auditObs || new MutationObserver(auditSchedule);
+    auditObs.observe(document.querySelector("main"), {childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"]});
+    auditScan();
+  }else if(auditObs) auditObs.disconnect();
+}
+document.getElementById("audBtn").addEventListener("click", () => setAudit(!auditOn));
 
 /* ---------- 路由 ---------- */
 const VIEWS = ["vocab","sentences","grammar","practice","chinese","mine"];
@@ -2213,7 +2400,7 @@ window.addEventListener("hashchange", route);
 let toastT;
 function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove("show"), 2600); }
 
-[renderHero, renderDeckNote, renderChips, renderList, renderLessons, renderQuiz, renderSentences, renderChinese, applyPy, renderMine, route, renderVoiceNote, pickVoice, fetchClips, startSyncOnLoad]
+[renderHero, renderDeckNote, renderChips, renderList, renderLessons, renderQuiz, renderSentences, renderChinese, applyPy, applyPyZh, renderMine, route, renderVoiceNote, pickVoice, fetchClips, startSyncOnLoad]
   .forEach(fn => { try{ fn(); }catch(e){ console.error(e); showErr(fn.name + ": " + e.message); } });
 if("speechSynthesis" in window) speechSynthesis.onvoiceschanged = pickVoice;
 </script>
