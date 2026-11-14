@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Schwiizerdütsch 瑞士德語</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF; --ink:#1E2329; --red:#D52B1E; --red-ink:#FFFFFF;
+  --glacier:#E8F1F4; --stone:#646C73; --pine:#2F6B57; --line:#E1E5E8; --bad:#B3261E;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#14181C; --ink:#EDF0F2; --red:#E8433A; --red-ink:#FFFFFF;
+    --glacier:#1D282E; --stone:#9AA3AA; --pine:#62B596; --line:#2A3238; --bad:#F2867E;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14181C; --ink:#EDF0F2; --red:#E8433A; --red-ink:#FFFFFF;
+  --glacier:#1D282E; --stone:#9AA3AA; --pine:#62B596; --line:#2A3238; --bad:#F2867E;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  font-size:17px;line-height:1.65}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.lat{font-family:"Archivo","Helvetica Neue",Arial,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+.bar{max-width:1040px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:"Archivo",sans-serif;font-weight:800;font-stretch:85%;font-size:22px;letter-spacing:-.01em;margin-right:auto}
+.cross{width:26px;height:26px;background:var(--red);position:relative;border-radius:3px;flex:none}
+.cross::before,.cross::after{content:"";position:absolute;background:#fff;left:50%;top:50%;transform:translate(-50%,-50%)}
+.cross::before{width:16px;height:5px}.cross::after{width:5px;height:16px}
+nav.tabs{display:flex;gap:4px}
+nav.tabs a{padding:7px 14px;border-radius:999px;text-decoration:none;color:var(--ink);font-weight:500}
+nav.tabs a[aria-current="page"]{background:var(--ink);color:var(--paper)}
+.speed{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--stone)}
+.speed button{border:1px solid var(--line);background:none;border-radius:999px;padding:3px 10px;font-size:14px}
+.speed button[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);font-weight:700}
+
+main{max-width:1040px;margin:0 auto;padding:0 20px 64px}
+.view[hidden]{display:none}
+
+/* hero */
+.hero{margin:28px 0 36px;background:var(--red);color:var(--red-ink);border-radius:6px;padding:28px 28px 32px;display:grid;grid-template-columns:1fr auto;gap:12px 24px;align-items:end}
+.hero .k{font-size:15px;opacity:.9;grid-column:1/-1}
+.hero .word{font-family:"Archivo",sans-serif;font-weight:900;font-stretch:68%;line-height:.88;font-size:clamp(64px,15vw,168px);letter-spacing:-.02em;margin:0;word-break:break-word}
+.hero .meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 22px;font-size:17px}
+.hero .meta .ipa{font-family:"Archivo",sans-serif;opacity:.9}
+.hero .play.big{width:76px;height:76px;background:var(--red-ink);color:var(--red)}
+.hero .play.big svg{width:30px;height:30px}
+
+.play{width:42px;height:42px;border-radius:50%;border:none;background:var(--red);color:#fff;display:grid;place-items:center;flex:none}
+.play svg{width:18px;height:18px;margin-left:2px}
+.play:active{transform:scale(.94)}
+.play.small{width:30px;height:30px}.play.small svg{width:13px;height:13px}
+
+.voice-note{font-size:14px;color:var(--stone);margin:-20px 0 28px;max-width:70ch}
+.voice-note b{color:var(--ink)}
+
+/* vocab */
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:none;border-radius:999px;padding:5px 14px;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--glacier);border-color:var(--ink);font-weight:700}
+.search{margin-left:auto;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:7px 16px;font:inherit;font-size:15px;min-width:200px}
+.list{border-top:2px solid var(--ink)}
+.row{display:grid;grid-template-columns:auto minmax(150px,1.2fr) 1fr 1fr auto;gap:6px 18px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.row .w{font-family:"Archivo",sans-serif;font-weight:700;font-size:23px;line-height:1.15}
+.row .ipa{display:block;font-family:"Archivo",sans-serif;font-weight:400;font-size:14px;color:var(--stone)}
+.row .de{color:var(--stone)}
+.row .de small{display:block;font-size:12px}
+.de-line{display:flex;align-items:center;gap:8px}
+.play.std{background:none;color:var(--stone);border:1.5px solid var(--line)}
+.play.std:hover{color:var(--ink);border-color:var(--ink)}
+.row .zh{font-weight:500}
+.row .tip{grid-column:2/-1;font-size:14px;color:var(--stone);margin-top:-4px}
+.known{border:1px solid var(--line);background:none;border-radius:999px;font-size:13px;padding:4px 10px;white-space:nowrap}
+.known[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:#fff}
+.empty{padding:28px 0;color:var(--stone)}
+.deck{display:inline-flex;border:1.5px solid var(--ink);border-radius:999px;padding:3px;margin-bottom:10px}
+.deck button{border:none;background:none;border-radius:999px;padding:7px 18px;font-weight:500}
+.deck button[aria-pressed="true"]{background:var(--ink);color:var(--paper);font-weight:700}
+.deck-note{color:var(--stone);font-size:15px;margin:0 0 18px;max-width:70ch}
+@media (max-width:720px){
+  .row{grid-template-columns:auto 1fr auto}
+  .row .de,.row .zh{grid-column:2/-1}
+  .row .de{order:3}.row .zh{order:2}
+  .row .known{grid-column:3;grid-row:1}
+  .row .tip{grid-column:2/-1;order:4}
+  .search{margin-left:0;flex:1}
+  .hero{grid-template-columns:1fr;padding:22px}
+}
+
+/* grammar */
+.intro{max-width:66ch;margin:32px 0 24px}
+.intro h1{font-family:"Archivo","Noto Sans TC",sans-serif;font-weight:800;font-stretch:80%;font-size:clamp(34px,6vw,52px);line-height:1.05;margin:0 0 10px;letter-spacing:-.01em}
+.intro p{margin:0;color:var(--stone)}
+details.lesson{border-top:1px solid var(--line)}
+details.lesson:last-of-type{border-bottom:1px solid var(--line)}
+details.lesson summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:3ch 1fr auto;gap:12px;align-items:baseline;padding:18px 0}
+details.lesson summary::-webkit-details-marker{display:none}
+summary .n{font-family:"Archivo",sans-serif;font-weight:800;color:var(--red);font-size:20px}
+summary .t{font-weight:700;font-size:20px}
+summary .t small{display:block;font-weight:400;font-size:15px;color:var(--stone)}
+summary .chev{transition:transform .2s;color:var(--stone)}
+details[open] summary .chev{transform:rotate(90deg)}
+.lesson-body{padding:0 0 28px calc(3ch + 12px);max-width:calc(68ch + 3ch + 12px)}
+.lesson-body p{margin:0 0 14px}
+.tbl-wrap{overflow-x:auto;margin:6px 0 18px}
+table{border-collapse:collapse;min-width:420px}
+th,td{text-align:left;padding:8px 14px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:14px;color:var(--stone);font-weight:500}
+td.lat{font-weight:600}
+.ex{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:start;padding:10px 0;border-bottom:1px dashed var(--line)}
+.ex:last-child{border-bottom:none}
+.ex .ch{font-family:"Archivo",sans-serif;font-weight:600;font-size:18px}
+.ex .gl{grid-column:2;font-size:15px;color:var(--stone)}
+.ex-group{background:var(--glacier);border-radius:6px;padding:6px 16px;margin:4px 0 18px}
+@media (max-width:720px){.lesson-body{padding-left:0}}
+
+/* practice */
+.quiz{max-width:640px;margin:32px auto}
+.qhead{display:flex;justify-content:space-between;color:var(--stone);font-size:15px;margin-bottom:10px}
+.progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:28px}
+.progress span{display:block;height:100%;background:var(--red);transition:width .3s}
+.qword{display:flex;align-items:center;gap:18px;margin-bottom:6px}
+.qword .w{overflow-wrap:anywhere;min-width:0;font-family:"Archivo",sans-serif;font-weight:900;font-stretch:72%;font-size:clamp(48px,10vw,84px);line-height:1}
+.qipa{font-family:"Archivo",sans-serif;color:var(--stone);margin-bottom:26px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{border:1.5px solid var(--line);background:var(--paper);border-radius:6px;padding:16px;text-align:left;font-size:17px}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.right{border-color:var(--pine);background:color-mix(in srgb,var(--pine) 14%,transparent)}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.feedback{min-height:28px;margin:16px 0;font-weight:500}
+.btn{border:none;background:var(--ink);color:var(--paper);border-radius:999px;padding:11px 24px;font-weight:700}
+.btn.ghost{background:none;color:var(--ink);border:1.5px solid var(--ink)}
+.result{text-align:center;padding:24px 0}
+.result .score{font-family:"Archivo",sans-serif;font-weight:900;font-stretch:70%;font-size:120px;line-height:1;color:var(--red)}
+.result .actions{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.modepick{display:flex;gap:8px;justify-content:center;margin-bottom:26px;flex-wrap:wrap}
+@media (max-width:520px){.opts{grid-template-columns:1fr}}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:6px;font-size:15px;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* sentences */
+.srow{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.sch{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-weight:700;font-size:21px;line-height:1.3}
+.szh{font-weight:500}
+.sde{grid-column:2;display:flex;align-items:center;gap:8px;color:var(--stone);font-size:15px}
+.vrow{display:grid;grid-template-columns:64px 1fr auto;gap:10px 14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.who{font-weight:700;line-height:1.25}
+.who small{display:block;font-weight:400;color:var(--stone);font-family:"Archivo",sans-serif}
+.vch{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-weight:600;font-size:21px;line-height:1.3}
+.vch b{color:var(--red);font-weight:800}
+.vde{display:flex;align-items:center;gap:8px;color:var(--stone);font-size:15px;margin:4px 0 2px}
+.qsent{font-size:clamp(24px,5vw,34px);font-weight:700;line-height:1.3;margin:6px 0 12px}
+.blank{display:inline-block;min-width:3.4ch;border-bottom:3px solid var(--red);color:transparent;margin:0 2px}
+.opts.one{grid-template-columns:1fr}
+.sqmodes{display:grid;gap:10px;max-width:520px}
+.sqmodes .btn{text-align:left;border-radius:10px;padding:14px 20px;font-size:17px}
+.sqmodes .btn small{display:block;font-weight:400;font-size:14px;opacity:.8;margin-top:2px}
+.tilebox{border:1.5px dashed var(--line);border-radius:8px;padding:10px;margin:8px 0 14px}
+.tiles{display:flex;flex-wrap:wrap;gap:8px;min-height:44px}
+.tile{border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:8px;padding:8px 14px;font-family:"Archivo",sans-serif;font-weight:600;font-size:18px}
+.tile.picked{background:var(--glacier)}
+.tile.right{border-color:var(--pine);background:color-mix(in srgb,var(--pine) 14%,transparent)}
+.tile.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.btn[disabled]{opacity:.4;cursor:default}
+@media (max-width:520px){.vrow{grid-template-columns:48px 1fr auto}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <div class="brand"><span class="cross" aria-hidden="true"></span>Schwiizerdütsch</div>
+    <nav class="tabs" aria-label="主選單">
+      <a href="#vocab">單字</a>
+      <a href="#sentences">句子</a>
+      <a href="#grammar">文法</a>
+      <a href="#practice">練習</a>
+    </nav>
+    <div class="speed" role="group" aria-label="播放速度">
+      語速
+      <button type="button" data-rate="0.9" aria-pressed="true">正常</button>
+      <button type="button" data-rate="0.6" aria-pressed="false">慢速</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 單字 -->
+  <section id="view-vocab" class="view">
+    <div class="hero" id="hero"></div>
+    <p class="voice-note" id="voiceNote"></p>
+    <div class="deck" role="group" aria-label="單字庫" id="deck">
+      <button type="button" data-deck="daily" aria-pressed="true">瑞士日常用語</button>
+      <button type="button" data-deck="b1" aria-pressed="false">德檢 B1 對照</button>
+    </div>
+    <p class="deck-note" id="deckNote"></p>
+    <div class="tools">
+      <div class="chips" id="chips"></div>
+      <input class="search" id="search" type="search" placeholder="搜尋瑞士德語、德語或中文" aria-label="搜尋單字">
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <!-- 文法 -->
+  <section id="view-grammar" class="view" hidden>
+    <div class="intro">
+      <h1>瑞士德語文法</h1>
+      <p>這裡以蘇黎世方言（Züritüütsch）為準。瑞士德語沒有官方拼寫，各地差異很大，同一個字在伯恩或巴塞爾可能寫法和發音都不同。點選例句旁的按鈕可以聽發音。</p>
+    </div>
+    <div id="lessons"></div>
+  </section>
+
+  <!-- 句子 -->
+  <section id="view-sentences" class="view" hidden>
+    <div class="intro">
+      <h1>句子</h1>
+      <p>常用句，加上動詞變化練習：同一個句子換不同人稱和時態，看動詞怎麼跟著變，再用測驗檢查自己。</p>
+    </div>
+    <div class="deck" id="sdeck" role="group" aria-label="句子功能">
+      <button type="button" data-smode="common" aria-pressed="true">常用句</button>
+      <button type="button" data-smode="verbs" aria-pressed="false">動詞變化</button>
+      <button type="button" data-smode="quiz" aria-pressed="false">句子測驗</button>
+    </div>
+    <p class="deck-note" id="snote"></p>
+    <div id="sbody"></div>
+  </section>
+
+  <!-- 練習 -->
+  <section id="view-practice" class="view" hidden>
+    <div class="quiz" id="quiz"></div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- 資料 ---------- */
+const CATS = [
+  {id:"greet", name:"問候"},
+  {id:"num",   name:"數字"},
+  {id:"food",  name:"食物"},
+  {id:"daily", name:"日常"},
+  {id:"move",  name:"交通"},
+  {id:"time",  name:"時間"}
+];
+const WORDS = [
+  // 問候
+  {c:"greet", ch:"Grüezi", ipa:"ˈɡryətsi", de:"Guten Tag", zh:"你好（正式）", tip:"「üe」是滑音，ü 滑向輕的 e，不是兩個音節分開唸。"},
+  {c:"greet", ch:"Grüezi mitenand", ipa:"ˈɡryətsi mitəˈnand", de:"Guten Tag zusammen", zh:"大家好"},
+  {c:"greet", ch:"Hoi", ipa:"hɔi̯", de:"Hallo", zh:"嗨（熟人之間）"},
+  {c:"greet", ch:"Sali", ipa:"ˈsali", de:"Hallo", zh:"嗨（熟人之間）"},
+  {c:"greet", ch:"Wie gaht’s?", say:"Wie gahts?", ipa:"ʋiə ˈɡɑts", de:"Wie geht’s?", zh:"你好嗎？", tip:"「ie」在瑞士德語唸成 i + 輕 e 的雙母音，跟標準德語的長 i 不同。"},
+  {c:"greet", ch:"Guet", ipa:"ɡuət", de:"gut", zh:"好"},
+  {c:"greet", ch:"Merci vilmal", ipa:"ˈmɛrsi ˈfilmɑːl", de:"Danke vielmals", zh:"非常感謝", tip:"重音在 Mer 上，跟法語不同。"},
+  {c:"greet", ch:"Exgüsi", ipa:"ɛksˈɡysi", de:"Entschuldigung", zh:"不好意思／借過"},
+  {c:"greet", ch:"En Guete!", ipa:"əŋ ˈɡuətə", de:"Guten Appetit!", zh:"用餐愉快！"},
+  {c:"greet", ch:"Proscht!", ipa:"prɔʃt", de:"Prost!", zh:"乾杯！", tip:"st 一律唸成「scht」。"},
+  {c:"greet", ch:"Uf Widerluege", ipa:"uf ˈʋidərˌluəɡə", de:"Auf Wiedersehen", zh:"再見（正式）"},
+  {c:"greet", ch:"Tschüss", ipa:"tʃys", de:"Tschüss", zh:"拜拜"},
+  {c:"greet", ch:"Schöne Tag", ipa:"ˈʃøːnə tɑːɡ", de:"Schönen Tag", zh:"祝你有美好的一天"},
+  {c:"greet", ch:"Ja / Nei", say:"Ja. Nei.", ipa:"jɑ / nɛi̯", de:"Ja / Nein", zh:"是／不是"},
+  // 數字
+  {c:"num", ch:"eis", ipa:"ɛi̯s", de:"eins", zh:"一"},
+  {c:"num", ch:"zwei", ipa:"tsʋɛi̯", de:"zwei", zh:"二", tip:"伯恩一帶說 zwöi。"},
+  {c:"num", ch:"drü", ipa:"dry", de:"drei", zh:"三"},
+  {c:"num", ch:"vier", ipa:"fiər", de:"vier", zh:"四"},
+  {c:"num", ch:"föif", ipa:"føi̯f", de:"fünf", zh:"五", tip:"伯恩一帶說 füf。"},
+  {c:"num", ch:"sächs", ipa:"sæks", de:"sechs", zh:"六"},
+  {c:"num", ch:"sibe", ipa:"ˈsibə", de:"sieben", zh:"七"},
+  {c:"num", ch:"acht", ipa:"ɑxt", de:"acht", zh:"八"},
+  {c:"num", ch:"nüün", ipa:"nyːn", de:"neun", zh:"九", tip:"重複的母音代表長音。"},
+  {c:"num", ch:"zää", ipa:"tsæː", de:"zehn", zh:"十"},
+  // 食物
+  {c:"food", ch:"Gipfeli", ipa:"ˈɡipfəli", de:"Croissant", zh:"可頌"},
+  {c:"food", ch:"Rüebli", ipa:"ˈryəbli", de:"Karotte", zh:"紅蘿蔔"},
+  {c:"food", ch:"Härdöpfel", ipa:"ˈhærdœpfəl", de:"Kartoffel", zh:"馬鈴薯", tip:"字面意思是「土蘋果」。"},
+  {c:"food", ch:"Anke", ipa:"ˈɑŋkə", de:"Butter", zh:"奶油"},
+  {c:"food", ch:"Rahm", ipa:"rɑːm", de:"Sahne", zh:"鮮奶油"},
+  {c:"food", ch:"Glace", ipa:"ɡlas", de:"Eis", zh:"冰淇淋", tip:"借自法語，但只唸一個音節。"},
+  {c:"food", ch:"Poulet", ipa:"ˈpule", de:"Hähnchen", zh:"雞肉"},
+  {c:"food", ch:"Zmorge", ipa:"ˈtsmɔrɡə", de:"Frühstück", zh:"早餐"},
+  {c:"food", ch:"Zmittag", ipa:"ˈtsmitɑɡ", de:"Mittagessen", zh:"午餐"},
+  {c:"food", ch:"Zvieri", ipa:"ˈtsfiəri", de:"Nachmittagsimbiss", zh:"下午點心", tip:"來自 z’vieri＝「四點的」。"},
+  {c:"food", ch:"Znacht", ipa:"tsnɑxt", de:"Abendessen", zh:"晚餐"},
+  {c:"food", ch:"Chuchichäschtli", ipa:"ˈxuxiˌxæʃtli", de:"Küchenkästchen", zh:"廚房小櫃子", tip:"經典繞口令字。三個 ch 都是喉嚨後面的摩擦音 [x]。"},
+  // 日常
+  {c:"daily", ch:"luege", ipa:"ˈluəɡə", de:"schauen", zh:"看"},
+  {c:"daily", ch:"lose", ipa:"ˈlosə", de:"zuhören", zh:"聽"},
+  {c:"daily", ch:"schaffe", ipa:"ˈʃafə", de:"arbeiten", zh:"工作"},
+  {c:"daily", ch:"poschte", ipa:"ˈpɔʃtə", de:"einkaufen", zh:"購物（買日用品）"},
+  {c:"daily", ch:"Chind", ipa:"xind", de:"Kind", zh:"小孩", tip:"標準德語的 k 開頭，瑞士德語常變成 ch [x]。"},
+  {c:"daily", ch:"Huus", ipa:"huːs", de:"Haus", zh:"房子", tip:"標準德語的 au 在這裡是長 u。"},
+  {c:"daily", ch:"Ziit", ipa:"tsiːt", de:"Zeit", zh:"時間", tip:"標準德語的 ei 在這裡是長 i。"},
+  {c:"daily", ch:"öppis", ipa:"ˈœpis", de:"etwas", zh:"某樣東西"},
+  {c:"daily", ch:"nüüt", ipa:"nyːt", de:"nichts", zh:"什麼都沒有"},
+  {c:"daily", ch:"Natel", ipa:"ˈnɑtəl", de:"Handy", zh:"手機"},
+  {c:"daily", ch:"Spital", ipa:"ʃpiˈtɑːl", de:"Krankenhaus", zh:"醫院"},
+  {c:"daily", ch:"mega", ipa:"ˈmeɡɑ", de:"sehr", zh:"超級、非常（口語）"},
+  // 交通
+  {c:"move", ch:"Velo", ipa:"ˈvelo", de:"Fahrrad", zh:"腳踏車"},
+  {c:"move", ch:"Tram", ipa:"tram", de:"Strassenbahn", zh:"路面電車"},
+  {c:"move", ch:"Billet", ipa:"ˈbije", de:"Fahrkarte", zh:"車票", tip:"借自法語，llet 唸成 [je]。"},
+  {c:"move", ch:"Zug", ipa:"tsuːɡ", de:"Zug", zh:"火車"},
+  {c:"move", ch:"Perron", ipa:"ˈpɛrɔ̃", de:"Bahnsteig", zh:"月台"},
+  {c:"move", ch:"parkiere", ipa:"parˈkiərə", de:"parken", zh:"停車"},
+  {c:"move", ch:"Wo isch de Bahnhof?", ipa:"ʋo iʃ də ˈbɑːnhof", de:"Wo ist der Bahnhof?", zh:"火車站在哪裡？"},
+  // 時間
+  {c:"time", ch:"hüt", ipa:"hyt", de:"heute", zh:"今天"},
+  {c:"time", ch:"morn", ipa:"mɔrn", de:"morgen", zh:"明天"},
+  {c:"time", ch:"geschter", ipa:"ˈɡɛʃtər", de:"gestern", zh:"昨天"},
+  {c:"time", ch:"jetzt", ipa:"jɛtst", de:"jetzt", zh:"現在"},
+  {c:"time", ch:"am Morge", ipa:"am ˈmɔrɡə", de:"am Morgen", zh:"早上"},
+  {c:"time", ch:"am Abig", ipa:"am ˈɑbiɡ", de:"am Abend", zh:"晚上"},
+  {c:"time", ch:"es Wüchli", ipa:"əs ˈʋyxli", de:"eine Woche", zh:"一個禮拜"}
+];
+
+const LESSONS = [
+  {t:"發音規則", s:"先學會這幾條，大部分的字都能唸",
+   body:[
+    {p:"瑞士德語的拼寫大致照著發音寫，所以掌握下面的規則，看到字就能唸出八成。"},
+    {table:{head:["規則","例子","說明"],rows:[
+      ["ch → [x]","Chind, acht","不管在 i、e 後面或字首，一律唸成喉嚨後方的摩擦音，像清喉嚨。標準德語的「ich 音」[ç] 幾乎不出現。"],
+      ["k → [kx]","Kafi","很多地方的 k 會帶一點摩擦，聽起來像 k 加 ch。"],
+      ["st / sp → scht / schp","Fescht, Gaschte","不只在字首，字中、字尾的 st、sp 也唸 sch。"],
+      ["ie, ue, üe","lieb, guet, müed","三個都是雙母音：前面的母音滑向輕的 e，例如 ue＝u-e。"],
+      ["重複母音＝長音","Huus, Ziit, nüüt","兩個相同母音代表長音。"],
+      ["字尾 -n 常省略","mache（machen）","動詞原形和許多字尾的 n 會消失。"],
+      ["l 音常變 u","Milch → Miuch","伯恩方言的特色，蘇黎世方言不會。"]
+    ]}},
+    {ex:[
+      {ch:"Chuchichäschtli", gl:"廚房小櫃子，三個 ch 都唸 [x]"},
+      {ch:"Fescht", gl:"慶典（標準德語：Fest）"},
+      {ch:"Ich bin müed", gl:"我累了"}
+    ]}
+   ]},
+  {t:"冠詞", s:"de、d、s，比標準德語短很多",
+   body:[
+    {p:"定冠詞縮短成一兩個字母，而且主格和受格同形（沒有 den）。"},
+    {table:{head:["","陽性","陰性","中性","複數"],rows:[
+      ["定冠詞","de","d","s","d"],
+      ["不定冠詞","en","e","es","—"]
+    ]}},
+    {ex:[
+      {ch:"de Maa", gl:"那個男人（der Mann）"},
+      {ch:"d Frau", gl:"那個女人（die Frau）"},
+      {ch:"s Chind", gl:"那個小孩（das Kind）"},
+      {ch:"Ich gseh de Maa", gl:"我看到那個男人（受格還是 de）"}
+    ]}
+   ]},
+  {t:"常用動詞變化", s:"sii（是）、ha（有）、gaa（去）",
+   body:[
+    {p:"這三個動詞最常用，也是構成過去式的基礎。複數三個人稱的形式相同，比標準德語好記。"},
+    {table:{head:["人稱","sii 是","ha 有","gaa 去"],rows:[
+      ["ich 我","bi","ha","gang"],
+      ["du 你","bisch","häsch","gahsch"],
+      ["er/si/es 他／她／它","isch","hät","gaht"],
+      ["mir 我們","sind","händ","gönd"],
+      ["ir 你們","sind","händ","gönd"],
+      ["si 他們","sind","händ","gönd"]
+    ]}},
+    {ex:[
+      {ch:"Ich bi us Taiwan", gl:"我來自台灣"},
+      {ch:"Häsch Ziit?", gl:"你有空嗎？"},
+      {ch:"Mir gönd hei", gl:"我們回家吧"}
+    ]}
+   ]},
+  {t:"沒有簡單過去式", s:"過去的事一律用現在完成式",
+   body:[
+    {p:"標準德語的 Präteritum（如 ich ging、ich war）在瑞士德語裡幾乎不存在。描述過去的事，一律用「ha 或 sii＋過去分詞」。過去分詞通常以 g- 開頭。"},
+    {ex:[
+      {ch:"Ich bi gsii", gl:"我曾經是（ich war）"},
+      {ch:"Ich ha gässe", gl:"我吃了（ich aß）"},
+      {ch:"Si isch is Kino gange", gl:"她去了電影院"},
+      {ch:"Mir händ gschaffet", gl:"我們工作了"}
+    ]}
+   ]},
+  {t:"縮小詞 -li", s:"處處可見的「小」",
+   body:[
+    {p:"在名詞後面加 -li 表示「小的」或表達親切感，母音常會變音（a→ä、u→ü、o→ö）。縮小詞一律是中性，冠詞用 s。"},
+    {ex:[
+      {ch:"s Hüsli", gl:"小房子（Huus）"},
+      {ch:"s Chätzli", gl:"小貓（Chatz）"},
+      {ch:"es Wüchli", gl:"一個禮拜（親切的說法）"},
+      {ch:"es Bierli", gl:"一杯小啤酒"}
+    ]}
+   ]},
+  {t:"沒有屬格", s:"「誰的」要換個說法",
+   body:[
+    {p:"標準德語的屬格（des Vaters）不使用。改用 vo＋與格，或用「與格＋所有格代名詞」的結構。"},
+    {ex:[
+      {ch:"s Huus vom Vater", gl:"爸爸的房子（vo＋em）"},
+      {ch:"em Vater sis Huus", gl:"爸爸的房子（字面：給爸爸他的房子）"},
+      {ch:"de Frau ihres Velo", gl:"那位女士的腳踏車"}
+    ]}
+   ]},
+  {t:"go 和 cho 的重複", s:"Ich gang go poschte",
+   body:[
+    {p:"表達「去做某事」或「來做某事」時，動詞後面要再加一個 go（去）或 cho（來），接著才是動詞原形。這是瑞士德語很有特色的結構。"},
+    {ex:[
+      {ch:"Ich gang go poschte", gl:"我去買東西"},
+      {ch:"Chunsch cho ässe?", gl:"你要來吃飯嗎？"},
+      {ch:"Si gaht go schwümme", gl:"她去游泳"}
+    ]}
+   ]},
+  {t:"關係子句用 wo", s:"取代 der、die、das",
+   body:[
+    {p:"標準德語用 der、die、das 引導關係子句，瑞士德語不論性別一律用 wo。"},
+    {ex:[
+      {ch:"De Maa, wo dött staht", gl:"站在那裡的那個男人"},
+      {ch:"S Buech, wo-n-ich lis", gl:"我正在讀的那本書（母音之間會插入 n）"}
+    ]}
+   ]}
+];
+
+/* 德檢 B1 對照：標準德語 | 瑞士德語（蘇黎世） | 中文 */
+const B1_RAW = {
+"人與家庭": `
+der Vater|de Vatter|父親
+die Mutter|d Mueter|母親
+die Eltern|d Eltere|父母
+der Bruder|de Brüeder|兄弟
+die Schwester|d Schwöschter|姊妹
+der Sohn|de Sohn|兒子
+die Tochter|d Tochter|女兒
+das Kind|s Chind|小孩
+der Junge|de Bueb|男孩
+das Mädchen|s Meitli|女孩
+die Großeltern|d Grosseltere|祖父母
+der Onkel|de Unggle|叔伯／舅舅
+die Tante|d Tante|阿姨／姑姑
+der Ehemann|de Maa|丈夫
+die Ehefrau|d Frau|妻子
+verheiratet|ghürate|已婚的
+ledig|ledig|單身的
+geschieden|gschide|離婚的
+heiraten|hürate|結婚
+der Freund|de Fründ|朋友／男朋友
+die Freundin|d Fründin|朋友／女朋友
+der Nachbar|de Nachber|鄰居
+der Name|de Name|名字
+wohnen|wohne|居住
+`,
+"身體與健康": `
+der Kopf|de Chopf|頭
+das Auge|s Aug|眼睛
+das Ohr|s Ohr|耳朵
+die Nase|d Nase|鼻子
+der Mund|de Mund|嘴巴
+der Zahn|de Zahn|牙齒
+der Hals|de Hals|脖子／喉嚨
+die Hand|d Hand|手
+das Bein|s Bei|腿
+der Fuß|de Fuess|腳
+der Bauch|de Buuch|肚子
+der Rücken|de Rugge|背
+krank|chrank|生病的
+gesund|gsund|健康的
+müde|müed|累的
+das Fieber|s Fieber|發燒
+die Erkältung|d Erchältig|感冒
+der Schmerz|de Schmerz|疼痛
+wehtun|weh tue|痛
+der Arzt|de Dokter|醫生
+die Apotheke|d Apiteegg|藥局
+das Medikament|s Medikamänt|藥物
+das Krankenhaus|s Spital|醫院
+die Versicherung|d Versicherig|保險
+`,
+"住宅": `
+die Wohnung|d Wohnig|公寓
+das Zimmer|s Zimmer|房間
+die Küche|d Chuchi|廚房
+das Badezimmer|s Badzimmer|浴室
+das Schlafzimmer|s Schlafzimmer|臥室
+der Balkon|de Balkon|陽台
+die Treppe|d Stäge|樓梯
+der Aufzug|de Lift|電梯
+die Miete|d Miete|房租
+der Vermieter|de Vermieter|房東
+umziehen|zügle|搬家
+der Schlüssel|de Schlüssel|鑰匙
+die Tür|d Tür|門
+das Fenster|s Fänschter|窗戶
+der Tisch|de Tisch|桌子
+der Stuhl|de Stuel|椅子
+das Bett|s Bett|床
+der Schrank|de Chaschte|櫃子
+der Kühlschrank|de Chüelschrank|冰箱
+die Heizung|d Heizig|暖氣
+der Müll|de Güsel|垃圾
+putzen|putze|打掃
+waschen|wäsche|洗
+`,
+"飲食": `
+das Essen|s Ässe|食物／一餐
+trinken|trinke|喝
+das Brot|s Brot|麵包
+das Brötchen|s Brötli|小麵包
+das Frühstück|de Zmorge|早餐
+der Käse|de Chäs|起司
+die Wurst|d Wurscht|香腸
+das Fleisch|s Fleisch|肉
+der Fisch|de Fisch|魚
+das Gemüse|s Gmües|蔬菜
+das Obst|s Obscht|水果
+der Apfel|de Öpfel|蘋果
+die Kartoffel|de Härdöpfel|馬鈴薯
+das Ei|s Ei|蛋
+die Milch|d Milch|牛奶
+das Wasser|s Wasser|水
+der Kaffee|de Kafi|咖啡
+der Wein|de Wii|葡萄酒
+der Zucker|de Zucker|糖
+süß|süess|甜的
+lecker|fein|好吃的
+kochen|choche|煮飯
+Hunger haben|Hunger ha|肚子餓
+die Rechnung|d Rächnig|帳單
+das Trinkgeld|s Trinkgäld|小費
+`,
+"購物與金錢": `
+einkaufen|poschte|買東西
+das Geschäft|de Lade|商店
+der Preis|de Pris|價格
+kosten|choschte|價錢是
+teuer|tüür|貴的
+billig|billig|便宜的
+das Geld|s Gäld|錢
+der Franken|de Franke|法郎
+bezahlen|zahle|付錢
+die Kasse|d Kasse|收銀台
+die Quittung|d Quittig|收據
+das Sonderangebot|d Aktion|特價
+die Kleidung|d Chleider|衣服
+die Hose|d Hose|褲子
+die Jacke|d Jagge|外套
+der Schuh|de Schue|鞋子
+die Größe|d Grössi|尺寸
+anprobieren|aaprobiere|試穿
+umtauschen|umtuusche|換貨
+kaufen|chaufe|買
+verkaufen|verchaufe|賣
+`,
+"交通與旅行": `
+der Bahnhof|de Bahnhof|火車站
+der Zug|de Zug|火車
+das Fahrrad|s Velo|腳踏車
+die Fahrkarte|s Billett|車票
+der Bahnsteig|s Perron|月台
+die Abfahrt|d Abfahrt|出發
+die Ankunft|d Aakunft|抵達
+umsteigen|umstiige|轉乘
+die Verspätung|d Verspätig|誤點
+der Flughafen|de Flughafe|機場
+fliegen|flüüge|飛
+die Reise|d Reis|旅行
+der Urlaub|d Ferie|假期
+das Gepäck|s Gepäck|行李
+der Pass|de Pass|護照
+die Straße|d Strass|街道
+der Gehweg|s Trottoir|人行道
+die Kreuzung|d Chrüzig|十字路口
+rechts|rächts|右邊
+geradeaus|gradus|直走
+weit|wiit|遠的
+nah|nöch|近的
+der Führerschein|de Fahrusweis|駕照
+parken|parkiere|停車
+`,
+"工作": `
+die Arbeit|d Arbet|工作（名詞）
+arbeiten|schaffe|工作（動詞）
+der Beruf|de Bruef|職業
+die Firma|d Firma|公司
+der Kollege|de Kolleg|同事
+das Büro|s Büro|辦公室
+die Stelle|d Stell|職位
+sich bewerben|sich bewärbe|應徵
+die Bewerbung|d Bewerbig|求職申請
+der Lebenslauf|de Läbeslauf|履歷
+das Gehalt|de Lohn|薪水
+die Besprechung|d Sitzig|會議
+der Feierabend|de Fiirabig|下班時間
+kündigen|chünde|辭職／解雇
+arbeitslos|arbetslos|失業的
+die Ausbildung|d Uusbildig|職業訓練
+die Pause|d Pause|休息
+der Kunde|de Kund|客戶
+verdienen|verdiene|賺錢
+`,
+"學校與學習": `
+die Schule|d Schuel|學校
+der Lehrer|de Lehrer|老師
+der Schüler|de Schüeler|學生
+lernen|lerne|學習
+die Prüfung|d Prüefig|考試
+bestehen|bestaa|通過（考試）
+die Hausaufgabe|d Huusufgab|作業
+die Sprache|d Sprach|語言
+verstehen|verstaa|理解
+erklären|erchläre|解釋
+wiederholen|widerhole|重複
+studieren|studiere|讀大學
+das Zeugnis|s Zügnis|成績單／證書
+schreiben|schriibe|寫
+lesen|läse|讀
+fragen|fröge|問
+antworten|antworte|回答
+`,
+"時間與星期": `
+die Woche|d Wuche|一週
+der Monat|de Monet|月
+die Stunde|d Stund|小時
+der Nachmittag|de Namittag|下午
+der Abend|de Abig|晚上
+das Wochenende|s Wuchenänd|週末
+Montag|Mäntig|星期一
+Dienstag|Ziischtig|星期二
+Mittwoch|Mittwuch|星期三
+Donnerstag|Dunschtig|星期四
+Freitag|Friitig|星期五
+Samstag|Samschtig|星期六
+Sonntag|Sunntig|星期日
+früh|früe|早
+spät|spaat|晚
+später|spöter|稍後
+manchmal|mängisch|有時候
+schon|scho|已經
+noch|no|還
+`,
+"天氣與自然": `
+das Wetter|s Wätter|天氣
+die Sonne|d Sunne|太陽
+der Regen|de Räge|雨
+regnen|rägne|下雨
+der Schnee|de Schnee|雪
+kalt|chalt|冷的
+heiß|heiss|熱的
+das Gewitter|s Gwitter|雷雨
+der Berg|de Bärg|山
+der See|de See|湖
+der Wald|de Wald|森林
+die Blume|d Blueme|花
+die Katze|d Chatz|貓
+der Frühling|de Früelig|春天
+der Sommer|de Summer|夏天
+der Herbst|de Herbscht|秋天
+die Umwelt|d Umwält|環境
+`,
+"休閒": `
+die Freizeit|d Freiziit|空閒時間
+spielen|spile|玩
+schwimmen|schwümme|游泳
+wandern|wandere|健行
+die Musik|d Musig|音樂
+das Konzert|s Konzärt|音樂會
+das Buch|s Buech|書
+das Fest|s Fescht|慶典
+einladen|iilade|邀請
+die Einladung|d Iiladig|邀請（名詞）
+sich treffen|sich träffe|見面
+der Verein|de Verein|社團
+Lust haben|Luscht ha|想要（做某事）
+fernsehen|Fernseh luege|看電視
+`,
+"溝通與媒體": `
+anrufen|aalüte|打電話
+die Nachricht|d Nachricht|訊息／新聞
+schicken|schicke|寄送
+die Post|d Poscht|郵局
+die E-Mail|s Mail|電子郵件
+die Zeitung|d Ziitig|報紙
+sagen|säge|說
+sprechen|rede|說話
+erzählen|verzelle|講述
+die Meinung|d Meinig|意見
+glauben|glaube|相信／認為
+diskutieren|diskutiere|討論
+`,
+"機關與手續": `
+das Amt|s Amt|政府機關
+das Formular|s Formular|表格
+ausfüllen|usfülle|填寫
+unterschreiben|unterschriibe|簽名
+die Adresse|d Adrässe|地址
+sich anmelden|sich aamälde|登記
+das Konto|s Konto|帳戶
+der Ausweis|d ID|身分證
+der Antrag|s Gsuech|申請
+die Aufenthaltserlaubnis|d Ufenthaltsbewilligung|居留許可
+die Gemeinde|d Gmeind|鄉鎮／市公所
+die Steuer|d Stüür|稅
+`,
+"常用形容詞": `
+groß|gross|大的
+klein|chlii|小的
+gut|guet|好的
+schlecht|schlächt|壞的
+schnell|schnäll|快的
+einfach|eifach|簡單的
+schwierig|schwirig|困難的
+leer|läär|空的
+traurig|truurig|難過的
+laut|luut|大聲的
+leise|liislig|小聲的
+sauber|suuber|乾淨的
+schmutzig|dräckig|髒的
+wichtig|wichtig|重要的
+`,
+"常用動詞": `
+sein|sii|是
+haben|ha|有
+gehen|gaa|去
+kommen|cho|來
+geben|gää|給
+nehmen|nää|拿
+sehen|gseh|看見
+hören|ghöre|聽見
+wissen|wüsse|知道
+denken|dänke|想
+suchen|sueche|尋找
+brauchen|bruuche|需要
+helfen|hälfe|幫忙
+stehen|staa|站
+liegen|ligge|躺
+aufstehen|ufstaa|起床
+anfangen|aafange|開始
+öffnen|ufmache|打開
+schließen|zuemache|關上
+vergessen|vergässe|忘記
+können|chöne|能夠
+müssen|müesse|必須
+wollen|wele|想要
+dürfen|dörfe|可以（被允許）
+gefallen|gfalle|討…喜歡
+versuchen|probiere|嘗試
+weinen|brüele|哭
+`,
+"常用小字": `
+hier|da|這裡
+dort|det|那裡
+viel|vill|多
+wenig|weni|少
+jemand|öpper|某人
+niemand|niemer|沒有人
+alle|alli|全部
+warum|wieso|為什麼
+wann|wänn|什麼時候
+welche|weli|哪個
+nicht|nöd|不
+auch|au|也
+weil|will|因為
+vielleicht|vilicht|也許
+zusammen|zäme|一起
+genug|gnueg|足夠
+gern|gärn|樂意
+`
+};
+const B1_CATS = Object.keys(B1_RAW).map((name, i) => ({id:"b"+i, name}));
+const B1 = [];
+B1_CATS.forEach(c => B1_RAW[c.name].trim().split("\n").forEach(line => {
+  const [de, ch, zh] = line.split("|").map(s => s.trim());
+  if(de && ch && zh) B1.push({c:c.id, de, ch, zh, key:"b1:"+de});
+}));
+WORDS.forEach(w => w.key = w.ch);
+
+/* ---------- 儲存 ---------- */
+function load(key, fallback){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; } }
+function save(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+let known = new Set(load("chde-known", []));
+let rate = load("chde-rate", 0.9);
+
+/* ---------- 發音 ---------- */
+const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>';
+let voice = null, stdVoice = null;
+function pickVoice(){
+  if(!("speechSynthesis" in window)) return;
+  const vs = speechSynthesis.getVoices();
+  const best = re => vs.filter(v => re.test(v.lang))
+    .sort((a, b) => (/natural|online|premium|enhanced/i.test(b.name) ? 1 : 0) - (/natural|online|premium|enhanced/i.test(a.name) ? 1 : 0))[0];
+  voice = best(/de[-_]CH/i) || best(/^de/i) || null;
+  stdVoice = best(/de[-_]DE/i) || best(/^de/i) || null;
+  renderVoiceNote();
+}
+function renderVoiceNote(){
+  const el = document.getElementById("voiceNote");
+  if(CLIPS === null){
+    el.innerHTML = "方言錄音載入中（檔案較大，第一次開啟會慢一點）…";
+    return;
+  }
+  const n = Object.keys(loadClips()).length;
+  let s = n
+    ? `<b>紅色按鈕</b>播放 Suisse Speech 合成的<b>蘇黎世方言</b>發音（共 ${n} 段，是用方言字詞和文法合成，不是標準德語加瑞士腔）。`
+    : "沒有載入方言錄音，紅色按鈕目前使用瀏覽器語音，發音不是真正的方言。";
+  if(!("speechSynthesis" in window)){
+    s += " <b>灰色按鈕</b>（標準德語）需要瀏覽器語音，這個瀏覽器不支援，請改用 Chrome、Edge 或 Safari。";
+  }else if(stdVoice){
+    s += ` <b>灰色按鈕</b>播放標準德語，目前語音：${stdVoice.name}。`;
+  }else{
+    s += " <b>灰色按鈕</b>（標準德語）找不到德語語音，請在系統設定安裝德語語音。";
+  }
+  el.innerHTML = s;
+}
+let CLIPS = null, curAudio = null;
+function loadClips(){ return CLIPS || {}; }
+function fetchClips(){
+  fetch("swiss-audio.json")
+    .then(r => { if(!r.ok) throw new Error("http " + r.status); return r.json(); })
+    .then(d => { CLIPS = d.clips || d; })
+    .catch(() => { CLIPS = {}; })
+    .then(() => { renderVoiceNote(); renderSentences(); });
+}
+function stopAll(){
+  if(curAudio){ try{ curAudio.pause(); }catch(e){} curAudio = null; }
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+}
+function speak(text, std=false, done=null){
+  stopAll();
+  if(!std){
+    const clip = loadClips()[text];
+    if(clip){
+      const a = new Audio("data:audio/mpeg;base64," + clip);
+      a.preservesPitch = true;
+      a.playbackRate = rate / 0.9;
+      if(done) a.onended = done;
+      curAudio = a;
+      a.play().catch(() => { curAudio = null; speakSynth(text, false, done); });
+      return;
+    }
+  }
+  speakSynth(text, std, done);
+}
+function speakSynth(text, std, done){
+  if(!("speechSynthesis" in window)){ toast("這個瀏覽器不支援語音播放"); return; }
+  const u = new SpeechSynthesisUtterance(text);
+  const v = std ? stdVoice : voice;
+  u.lang = v ? v.lang : (std ? "de-DE" : "de-CH");
+  if(v) u.voice = v;
+  u.rate = rate;
+  if(done) u.onend = done;
+  speechSynthesis.speak(u);
+}
+function playBtn(text, cls="", std=false){
+  return `<button type="button" class="play ${cls}${std ? " std" : ""}" data-say="${esc(text)}"${std ? ' data-std="1"' : ""} aria-label="播放${std ? "標準德語" : ""} ${esc(text)}">${PLAY}</button>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-say]");
+  if(b) speak(b.dataset.say, b.dataset.std === "1");
+});
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+
+document.querySelectorAll(".speed button").forEach(b => {
+  b.setAttribute("aria-pressed", String(Number(b.dataset.rate) === rate));
+  b.addEventListener("click", () => {
+    rate = Number(b.dataset.rate); save("chde-rate", rate);
+    document.querySelectorAll(".speed button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  });
+});
+
+/* ---------- 單字頁 ---------- */
+let cat = "all", query = "", deck = "daily";
+const deckWords = () => deck === "b1" ? B1 : WORDS;
+const deckCats = () => deck === "b1" ? B1_CATS : CATS;
+function renderDeckNote(){
+  document.getElementById("deckNote").textContent = deck === "b1"
+    ? `依德檢 B1 常見主題整理的 ${B1.length} 個核心字。考試考的是標準德語，瑞士德語（蘇黎世）讓你在瑞士也聽得懂。兩邊都能播放：紅色是瑞士德語，灰色是標準德語。`
+    : `瑞士人日常最常聽到的 ${WORDS.length} 個字和句子，附音標和發音提示。`;
+}
+document.getElementById("deck").addEventListener("click", e => {
+  const b = e.target.closest("[data-deck]"); if(!b) return;
+  deck = b.dataset.deck; cat = "all";
+  document.querySelectorAll("#deck button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  renderDeckNote(); renderChips(); renderList();
+});
+function renderHero(){
+  const d = new Date(); const idx = (d.getFullYear()*372 + d.getMonth()*31 + d.getDate()) % WORDS.length;
+  const w = WORDS[idx];
+  document.getElementById("hero").innerHTML = `
+    <div class="k">今天的單字</div>
+    <p class="word" lang="gsw">${w.ch}</p>
+    ${playBtn(w.say || w.ch, "big")}
+    <div class="meta"><span class="ipa">[${w.ipa}]</span><span>${w.zh}</span><span>德語：${w.de}</span><button type="button" class="play small" style="background:var(--red-ink);color:var(--red)" data-say="${esc(w.de)}" data-std="1" aria-label="播放標準德語 ${esc(w.de)}">${PLAY}</button></div>`;
+}
+function renderChips(){
+  const all = [{id:"all", name:"全部"}, ...deckCats(), {id:"known", name:"已學會"}];
+  document.getElementById("chips").innerHTML = all.map(c =>
+    `<button type="button" class="chip" data-cat="${c.id}" aria-pressed="${c.id===cat}">${c.name}</button>`).join("");
+}
+document.getElementById("chips").addEventListener("click", e => {
+  const b = e.target.closest("[data-cat]"); if(!b) return;
+  cat = b.dataset.cat; renderChips(); renderList();
+});
+document.getElementById("search").addEventListener("input", e => { query = e.target.value.trim().toLowerCase(); renderList(); });
+
+function renderList(){
+  const items = deckWords().filter(w =>
+    (cat === "all" || (cat === "known" ? known.has(w.key) : w.c === cat)) &&
+    (!query || [w.ch, w.de, w.zh].some(s => s.toLowerCase().includes(query))));
+  const el = document.getElementById("list");
+  if(!items.length){
+    el.innerHTML = `<div class="empty">${cat === "known" ? "還沒有標記為已學會的單字。在單字旁按「標記學會」就會出現在這裡。" : "找不到符合的單字，換個關鍵字試試。"}</div>`;
+    return;
+  }
+  el.innerHTML = items.map(w => `
+    <div class="row">
+      ${playBtn(w.say || w.ch)}
+      <div class="w" lang="gsw">${w.ch}${w.ipa ? `<span class="ipa">[${w.ipa}]</span>` : ""}</div>
+      <div class="zh">${w.zh}</div>
+      <div class="de" lang="de"><small>標準德語</small><span class="de-line">${playBtn(w.de, "small", true)}${w.de}</span></div>
+      <button type="button" class="known" data-known="${esc(w.key)}" aria-pressed="${known.has(w.key)}">${known.has(w.key) ? "已學會" : "標記學會"}</button>
+      ${w.tip ? `<div class="tip">${w.tip}</div>` : ""}
+    </div>`).join("");
+}
+document.getElementById("list").addEventListener("click", e => {
+  const b = e.target.closest("[data-known]"); if(!b) return;
+  const k = b.dataset.known;
+  known.has(k) ? known.delete(k) : known.add(k);
+  save("chde-known", [...known]);
+  renderList();
+});
+
+/* ---------- 文法頁 ---------- */
+function renderLessons(){
+  document.getElementById("lessons").innerHTML = LESSONS.map((l, i) => `
+    <details class="lesson"${i===0?" open":""}>
+      <summary><span class="n lat">${i+1}</span><span class="t">${l.t}<small>${l.s}</small></span><span class="chev" aria-hidden="true">›</span></summary>
+      <div class="lesson-body">
+        ${l.body.map(b => {
+          if(b.p) return `<p>${b.p}</p>`;
+          if(b.table) return `<div class="tbl-wrap"><table><thead><tr>${b.table.head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${
+            b.table.rows.map(r => `<tr>${r.map((c,j)=>`<td${j>0 && /^[a-zäöü\- \/]+$/i.test(c) ? ' class="lat"' : (j===0?' class="lat"':'')}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+          if(b.ex) return `<div class="ex-group">${b.ex.map(x => `
+            <div class="ex">${playBtn(x.ch.replace(/-n-/g,"n "),"small")}<span class="ch" lang="gsw">${x.ch}</span><span class="gl">${x.gl}</span></div>`).join("")}</div>`;
+          return "";
+        }).join("")}
+      </div>
+    </details>`).join("");
+}
+
+/* ---------- 練習頁 ---------- */
+let Q = null;
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+let quizDeck = "daily";
+function startQuiz(mode){
+  const pool = quizDeck === "b1" ? B1 : WORDS;
+  const qs = shuffle(pool).slice(0, 10).map(w => {
+    const wrong = shuffle(pool.filter(x => x.zh !== w.zh && x.ch !== w.ch)).slice(0, 3);
+    return {w, opts: shuffle([w, ...wrong])};
+  });
+  Q = {mode, qs, i:0, score:0, answered:false, missed:[]};
+  renderQuiz();
+}
+function renderQuiz(){
+  const el = document.getElementById("quiz");
+  if(!Q){
+    el.innerHTML = `
+      <div class="intro" style="margin-top:0"><h1>練習</h1><p>每回 10 題。選對了會自動標記為已學會。</p></div>
+      <p style="text-align:center;color:var(--stone);margin:0 0 8px">題庫</p>
+      <div class="modepick chips">
+        <button type="button" class="chip" data-qdeck="daily" aria-pressed="${quizDeck === "daily"}">瑞士日常用語</button>
+        <button type="button" class="chip" data-qdeck="b1" aria-pressed="${quizDeck === "b1"}">德檢 B1 對照</button>
+      </div>
+      <div class="modepick">
+        <button type="button" class="btn" data-mode="read">看字選意思</button>
+        <button type="button" class="btn ghost" data-mode="listen">聽音選意思</button>
+        <button type="button" class="btn ghost" data-mode="de2ch">看德語選瑞士德語</button>
+      </div>`;
+    return;
+  }
+  if(Q.i >= Q.qs.length){
+    el.innerHTML = `
+      <div class="result">
+        <div class="score lat">${Q.score}/${Q.qs.length}</div>
+        <p>${Q.score === Q.qs.length ? "全對，可以去聽聽看真正的瑞士人說話了。" : "答錯的字："}</p>
+        ${Q.missed.length ? `<div class="ex-group" style="text-align:left">${Q.missed.map(w=>`<div class="ex">${playBtn(w.say||w.ch,"small")}<span class="ch">${w.ch}</span><span class="gl">${w.zh}</span></div>`).join("")}</div>` : ""}
+        <div class="actions">
+          <button type="button" class="btn" data-mode="${Q.mode}">再練一回</button>
+          <button type="button" class="btn ghost" data-reset>換練習方式</button>
+        </div>
+      </div>`;
+    return;
+  }
+  const {w, opts} = Q.qs[Q.i];
+  const listen = Q.mode === "listen", d2c = Q.mode === "de2ch";
+  el.innerHTML = `
+    <div class="qhead"><span>第 ${Q.i+1} 題，共 ${Q.qs.length} 題</span><span>答對 ${Q.score}</span></div>
+    <div class="progress"><span style="width:${Q.i/Q.qs.length*100}%"></span></div>
+    <div class="qword">${d2c ? playBtn(w.de, "big", true) : playBtn(w.say || w.ch, "big")}<span class="w" lang="${d2c ? "de" : "gsw"}">${d2c ? w.de : (listen ? "？" : w.ch)}</span></div>
+    <div class="qipa">${d2c ? `${w.zh}，選出對應的瑞士德語` : (listen ? "先聽，再選意思" : (w.ipa ? `[${w.ipa}]` : `標準德語：${w.de}`))}</div>
+    <div class="opts">${opts.map((o, k) => `<button type="button" class="opt${d2c ? " lat" : ""}" data-opt="${k}">${d2c ? o.ch : o.zh}</button>`).join("")}</div>
+    <div class="feedback" id="fb"></div>
+    <button type="button" class="btn" id="next" hidden>下一題</button>`;
+  setTimeout(() => d2c ? speak(w.de, true) : speak(w.say || w.ch), 150);
+}
+document.getElementById("quiz").addEventListener("click", e => {
+  const qd = e.target.closest("[data-qdeck]"); if(qd){ quizDeck = qd.dataset.qdeck; renderQuiz(); return; }
+  const m = e.target.closest("[data-mode]"); if(m){ startQuiz(m.dataset.mode); return; }
+  if(e.target.closest("[data-reset]")){ Q = null; renderQuiz(); return; }
+  if(e.target.id === "next"){ Q.i++; Q.answered = false; renderQuiz(); return; }
+  const o = e.target.closest("[data-opt]");
+  if(o && Q && !Q.answered){
+    Q.answered = true;
+    const {w, opts} = Q.qs[Q.i];
+    const pick = opts[Number(o.dataset.opt)];
+    const ok = pick === w;
+    if(ok){ Q.score++; known.add(w.key); save("chde-known", [...known]); } else Q.missed.push(w);
+    document.querySelectorAll(".opt").forEach((b, k) => {
+      b.disabled = true;
+      if(opts[k] === w) b.classList.add("right");
+      else if(b === o) b.classList.add("wrong");
+    });
+    if(Q.mode === "listen"){
+      document.querySelector(".qword .w").textContent = w.ch;
+      document.querySelector(".qipa").textContent = w.ipa ? `[${w.ipa}]` : `標準德語：${w.de}`;
+    }
+    if(Q.mode === "de2ch") speak(w.say || w.ch);
+    document.getElementById("fb").textContent = ok ? "答對了。" : `正確答案是「${Q.mode === "de2ch" ? w.ch : w.zh}」。`;
+    const n = document.getElementById("next");
+    n.hidden = false; n.textContent = Q.i === Q.qs.length - 1 ? "看結果" : "下一題"; n.focus();
+  }
+});
+
+/* ---------- 句子 ---------- */
+const PERSONS = [
+  {ch:"Ich", de:"Ich", zh:"我"},
+  {ch:"Du",  de:"Du",  zh:"你"},
+  {ch:"Är",  de:"Er",  zh:"他"},
+  {ch:"Mir", de:"Wir", zh:"我們"},
+  {ch:"Ihr", de:"Ihr", zh:"你們"},
+  {ch:"Si",  de:"Sie", zh:"他們"}
+];
+const AUX = {
+  ha:  {ch:["ha","häsch","hät","händ","händ","händ"], de:["habe","hast","hat","haben","habt","haben"]},
+  sii: {ch:["bi","bisch","isch","sind","sind","sind"], de:["bin","bist","ist","sind","seid","sind"]}
+};
+const VERBS = [
+  {id:"essen", zh:"吃", inf:"ässe", obj:"en Öpfel", deObj:"einen Apfel", zhPres:"吃蘋果", zhPerf:"吃了蘋果",
+   pres:["iss","issch","isst","ässed","ässed","ässed"], dePres:["esse","isst","isst","essen","esst","essen"],
+   part:"gässe", dePart:"gegessen", aux:"ha", tip:"不規則動詞：ich、du、er 用 iss- 開頭，mir、ihr、si 用 ässe-。這個動詞的形式我最沒把握，建議請母語者確認。"},
+  {id:"trinken", zh:"喝", inf:"trinke", obj:"en Kafi", deObj:"einen Kaffee", zhPres:"喝咖啡", zhPerf:"喝了咖啡",
+   pres:["trinke","trinksch","trinkt","trinked","trinked","trinked"], dePres:["trinke","trinkst","trinkt","trinken","trinkt","trinken"],
+   part:"trunke", dePart:"getrunken", aux:"ha", tip:"過去分詞 trunke 的母音和現在式不同（trinke → trunke）。"},
+  {id:"kochen", zh:"煮", inf:"choche", obj:"Spaghetti", deObj:"Spaghetti", zhPres:"煮義大利麵", zhPerf:"煮了義大利麵",
+   pres:["choche","chochsch","chocht","choched","choched","choched"], dePres:["koche","kochst","kocht","kochen","kocht","kochen"],
+   part:"gchocht", dePart:"gekocht", aux:"ha", tip:"標準德語的 k 開頭，瑞士德語常變成 ch [x]。"},
+  {id:"kaufen", zh:"買", inf:"chaufe", obj:"es Billett", deObj:"eine Fahrkarte", zhPres:"買車票", zhPerf:"買了車票",
+   pres:["chaufe","chaufsch","chauft","chaufed","chaufed","chaufed"], dePres:["kaufe","kaufst","kauft","kaufen","kauft","kaufen"],
+   part:"gchauft", dePart:"gekauft", aux:"ha", tip:"規則動詞：詞幹 chauf- 加上人稱字尾。"},
+  {id:"wohnen", zh:"住", inf:"wohne", obj:"z Züri", deObj:"in Zürich", zhPres:"住在蘇黎世", zhPerf:"住過蘇黎世",
+   pres:["wohne","wohnsch","wohnt","wohned","wohned","wohned"], dePres:["wohne","wohnst","wohnt","wohnen","wohnt","wohnen"],
+   part:"gwohnt", dePart:"gewohnt", aux:"ha", tip:"z Züri 是「在蘇黎世」，z 是 zu 的縮寫。"},
+  {id:"arbeiten", zh:"工作", inf:"schaffe", obj:"vil", deObj:"viel", zhPres:"工作很多", zhPerf:"工作了很多",
+   pres:["schaffe","schaffsch","schafft","schaffed","schaffed","schaffed"], dePres:["arbeite","arbeitest","arbeitet","arbeiten","arbeitet","arbeiten"],
+   part:"gschaffet", dePart:"gearbeitet", aux:"ha", tip:"schaffe 就是「工作」，和標準德語的 arbeiten 是不同的字。"},
+  {id:"lernen", zh:"學", inf:"lerne", obj:"Schwiizerdütsch", deObj:"Schweizerdeutsch", zhPres:"學瑞士德語", zhPerf:"學了瑞士德語",
+   pres:["lerne","lernsch","lernt","lerned","lerned","lerned"], dePres:["lerne","lernst","lernt","lernen","lernt","lernen"],
+   part:"glernt", dePart:"gelernt", aux:"ha", tip:"規則動詞。"},
+  {id:"spielen", zh:"玩／踢", inf:"spile", obj:"Fuessball", deObj:"Fußball", zhPres:"踢足球", zhPerf:"踢了足球",
+   pres:["spile","spilsch","spilt","spiled","spiled","spiled"], dePres:["spiele","spielst","spielt","spielen","spielt","spielen"],
+   part:"gspilt", dePart:"gespielt", aux:"ha", tip:"規則動詞。Fuessball 的 ue 是雙母音。"},
+  {id:"gehen", zh:"去", inf:"gaa", obj:"is Kino", deObj:"ins Kino", zhPres:"去電影院", zhPerf:"去了電影院",
+   pres:["gang","gahsch","gaht","gönd","gönd","gönd"], dePres:["gehe","gehst","geht","gehen","geht","gehen"],
+   part:"gange", dePart:"gegangen", aux:"sii", tip:"不規則動詞，過去式的助動詞用 bi（sii），不是 ha。"},
+  {id:"sein", zh:"是", inf:"sii", obj:"müed", deObj:"müde", zhPres:"很累", zhPerf:"之前很累",
+   pres:["bi","bisch","isch","sind","sind","sind"], dePres:["bin","bist","ist","sind","seid","sind"],
+   part:"gsii", dePart:"gewesen", aux:"sii", tip:"sii（是）本身就是助動詞，所以過去式是「bi … gsii」。"},
+  {id:"haben", zh:"有", inf:"ha", obj:"Hunger", deObj:"Hunger", zhPres:"肚子餓", zhPerf:"之前肚子餓",
+   pres:["ha","häsch","hät","händ","händ","händ"], dePres:["habe","hast","hat","haben","habt","haben"],
+   part:"gha", dePart:"gehabt", aux:"ha", tip:"ha（有）的過去分詞是 gha。"}
+];
+const TENSES = [["pres","現在式"],["perf","過去（現在完成式）"]];
+const TENSE_NAME = {pres:"現在式", perf:"過去"};
+
+function buildS(v, i, tense){
+  const P = PERSONS[i], A = AUX[v.aux];
+  let tokens, d, zh;
+  if(tense === "pres"){
+    tokens = [{x:P.ch}, {x:v.pres[i], v:1}, {x:v.obj}];
+    d = [P.de, v.dePres[i], v.deObj];
+    zh = P.zh + v.zhPres;
+  }else{
+    tokens = [{x:P.ch}, {x:A.ch[i], v:1}, {x:v.obj}, {x:v.part, v:1}];
+    d = [P.de, A.de[i], v.deObj, v.dePart];
+    zh = P.zh + v.zhPerf;
+  }
+  return {v, i, tense, tokens, ch: tokens.map(a => a.x).join(" ") + ".", de: d.join(" ") + ".", zh};
+}
+const VS = [];
+VERBS.forEach(v => TENSES.forEach(([t]) => PERSONS.forEach((_, i) => VS.push(buildS(v, i, t)))));
+
+const SCATS = [
+  {id:"intro", name:"打招呼"}, {id:"talk", name:"溝通"}, {id:"food", name:"餐廳"},
+  {id:"shop", name:"購物"}, {id:"move", name:"交通"}, {id:"daily", name:"日常"}
+];
+const SENTS = [
+  {c:"intro", ch:"Wie gaht’s dir?", de:"Wie geht es dir?", zh:"你好嗎？"},
+  {c:"intro", ch:"Guet, danke. Und dir?", de:"Gut, danke. Und dir?", zh:"很好，謝謝。你呢？"},
+  {c:"intro", ch:"Ich bi d Anna.", de:"Ich bin Anna.", zh:"我是安娜。"},
+  {c:"intro", ch:"Es fröit mi.", de:"Es freut mich.", zh:"很高興認識你。"},
+  {c:"intro", ch:"Woher chunnsch du?", de:"Woher kommst du?", zh:"你從哪裡來？"},
+  {c:"intro", ch:"Ich chume us Taiwan.", de:"Ich komme aus Taiwan.", zh:"我來自台灣。"},
+  {c:"intro", ch:"Wo wohnsch du?", de:"Wo wohnst du?", zh:"你住在哪裡？"},
+  {c:"talk", ch:"Ich verstaa das nöd.", de:"Ich verstehe das nicht.", zh:"我聽不懂。"},
+  {c:"talk", ch:"Chasch du das bitte widerhole?", de:"Kannst du das bitte wiederholen?", zh:"你可以再說一次嗎？"},
+  {c:"talk", ch:"Chasch du langsamer rede?", de:"Kannst du langsamer sprechen?", zh:"你可以說慢一點嗎？"},
+  {c:"talk", ch:"Sprichsch du Änglisch?", de:"Sprichst du Englisch?", zh:"你會說英文嗎？"},
+  {c:"talk", ch:"Was heisst das uf Dütsch?", de:"Was heißt das auf Deutsch?", zh:"這個用德語怎麼說？"},
+  {c:"talk", ch:"Chönnted Si mir bitte hälfe?", de:"Könnten Sie mir bitte helfen?", zh:"您可以幫我一下嗎？"},
+  {c:"food", ch:"Ich hätt gärn en Kafi.", de:"Ich hätte gern einen Kaffee.", zh:"我想要一杯咖啡。"},
+  {c:"food", ch:"Händ Si en Tisch für zwei frei?", de:"Haben Sie einen Tisch für zwei frei?", zh:"你們有兩人的空位嗎？"},
+  {c:"food", ch:"D Charte bitte.", de:"Die Speisekarte bitte.", zh:"請給我菜單。"},
+  {c:"food", ch:"Mir wetted zahle.", de:"Wir möchten zahlen.", zh:"我們要結帳。"},
+  {c:"food", ch:"Das isch sehr fein.", de:"Das ist sehr lecker.", zh:"這個很好吃。"},
+  {c:"shop", ch:"Was choschtet das?", de:"Was kostet das?", zh:"這個多少錢？"},
+  {c:"shop", ch:"Das isch mir z tüür.", de:"Das ist mir zu teuer.", zh:"這個對我來說太貴了。"},
+  {c:"shop", ch:"Chan ich mit Charte zahle?", de:"Kann ich mit Karte zahlen?", zh:"我可以刷卡嗎？"},
+  {c:"shop", ch:"Ich luege nume.", de:"Ich schaue nur.", zh:"我只是看看。"},
+  {c:"move", ch:"Wo isch de Bahnhof?", de:"Wo ist der Bahnhof?", zh:"火車站在哪裡？"},
+  {c:"move", ch:"Wänn fahrt de nöchscht Zug?", de:"Wann fährt der nächste Zug?", zh:"下一班火車什麼時候開？"},
+  {c:"move", ch:"Es Billett nach Bärn, bitte.", de:"Eine Fahrkarte nach Bern, bitte.", zh:"請給我一張去伯恩的車票。"},
+  {c:"move", ch:"Mues ich umstiige?", de:"Muss ich umsteigen?", zh:"我需要轉車嗎？"},
+  {c:"move", ch:"Uf wellem Gleis?", de:"Auf welchem Gleis?", zh:"在哪個月台？"},
+  {c:"move", ch:"De Zug het Verspötig.", de:"Der Zug hat Verspätung.", zh:"火車誤點了。"},
+  {c:"daily", ch:"Wo isch d Toilette?", de:"Wo ist die Toilette?", zh:"廁所在哪裡？"},
+  {c:"daily", ch:"Ich ha Durscht.", de:"Ich habe Durst.", zh:"我口渴。"},
+  {c:"daily", ch:"Es tuet mer leid.", de:"Es tut mir leid.", zh:"對不起。"},
+  {c:"daily", ch:"Kei Problem.", de:"Kein Problem.", zh:"沒問題。"},
+  {c:"daily", ch:"Bis spöter!", de:"Bis später!", zh:"待會見！"},
+  {c:"daily", ch:"Wie spaat isch es?", de:"Wie spät ist es?", zh:"現在幾點？"},
+  {c:"daily", ch:"Ich ha kei Ziit.", de:"Ich habe keine Zeit.", zh:"我沒有時間。"},
+  {c:"daily", ch:"Chunnsch mit?", de:"Kommst du mit?", zh:"你要一起來嗎？"},
+  {c:"daily", ch:"Hüt isch es schön.", de:"Heute ist es schön.", zh:"今天天氣很好。"}
+];
+
+let smode = "common", scat = "all", vid = VERBS[0].id, tense = "pres", SQ = null, seqId = 0;
+
+function speakSeq(keys){
+  const my = ++seqId; let k = 0;
+  const next = () => {
+    if(my !== seqId || k >= keys.length) return;
+    speak(keys[k++], false, () => setTimeout(next, 350));
+  };
+  next();
+}
+function clipCoverage(){
+  const c = loadClips(), keys = new Set([...SENTS.map(s => s.ch), ...VS.map(s => s.ch)]);
+  let m = 0; keys.forEach(k => { if(!c[k]) m++; });
+  return {m, total: keys.size};
+}
+const tokHtml = r => r.tokens.map(a => a.v ? `<b>${a.x}</b>` : a.x).join(" ") + ".";
+
+function renderSentences(){
+  document.querySelectorAll("#sdeck button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.smode === smode)));
+  const {m, total} = clipCoverage();
+  document.getElementById("snote").innerHTML = CLIPS === null ? "方言錄音載入中…" : m
+    ? `共 ${total} 個句子，其中 <b>${m}</b> 個還沒有方言錄音，播放時會改用瀏覽器語音，發音不是方言。`
+    : `共 ${total} 個句子，全部都有蘇黎世方言錄音。`;
+  const el = document.getElementById("sbody");
+  if(smode === "common") renderCommon(el);
+  else if(smode === "verbs") renderVerbs(el);
+  else renderSQ(el);
+}
+function renderCommon(el){
+  const chips = [{id:"all", name:"全部"}, ...SCATS].map(c =>
+    `<button type="button" class="chip" data-scat="${c.id}" aria-pressed="${c.id === scat}">${c.name}</button>`).join("");
+  const items = SENTS.filter(s => scat === "all" || s.c === scat);
+  el.innerHTML = `<div class="chips" style="margin-bottom:14px">${chips}</div>
+    <div class="list">${items.map(s => `
+      <div class="srow">${playBtn(s.ch)}
+        <div><div class="sch" lang="gsw">${s.ch}</div><div class="szh">${s.zh}</div></div>
+        <div class="sde" lang="de">${playBtn(s.de, "small", true)}<span>${s.de}</span></div>
+      </div>`).join("")}</div>`;
+}
+function renderVerbs(el){
+  const v = VERBS.find(x => x.id === vid);
+  const rows = PERSONS.map((_, i) => buildS(v, i, tense));
+  const tenseNote = tense === "pres"
+    ? "現在式：動詞跟著主詞變化。mir、ihr、si 三個人稱的形式相同。"
+    : "過去的事用「助動詞 ha 或 bi ＋ 過去分詞」，沒有簡單過去式。助動詞跟著主詞變化，過去分詞不變。未來沒有專用的時態，通常用現在式加時間詞，例如 morn（明天）。";
+  el.innerHTML = `
+    <div class="chips" style="margin-bottom:12px">${VERBS.map(x =>
+      `<button type="button" class="chip" data-verb="${x.id}" aria-pressed="${x.id === vid}">${x.zh} <span class="lat">${x.inf}</span></button>`).join("")}</div>
+    <div class="deck" style="margin-bottom:10px">${TENSES.map(([k, n]) =>
+      `<button type="button" data-tense="${k}" aria-pressed="${tense === k}">${n}</button>`).join("")}</div>
+    <p class="deck-note">${tenseNote}<br>${v.tip}</p>
+    <div class="list">${rows.map(r => `
+      <div class="vrow">
+        <div class="who">${r.i === 2 ? "他／她" : PERSONS[r.i].zh}<small>${r.i === 2 ? "Är / Si" : PERSONS[r.i].ch}</small></div>
+        <div>
+          <div class="vch" lang="gsw">${tokHtml(r)}</div>
+          <div class="vde" lang="de">${playBtn(r.de, "small", true)}<span>${r.de}</span></div>
+          <div class="szh">${r.zh}</div>
+        </div>
+        ${playBtn(r.ch)}
+      </div>`).join("")}</div>
+    <div style="margin-top:16px"><button type="button" class="btn" data-playall>全部依序播放</button></div>`;
+}
+
+/* 句子測驗 */
+function startSQ(mode){
+  let qs = [];
+  if(mode === "choose"){
+    qs = shuffle(VS).slice(0, 10).map(s => {
+      const sameT = shuffle(VS.filter(x => x.v === s.v && x.tense === s.tense && x.i !== s.i));
+      const otherT = shuffle(VS.filter(x => x.v === s.v && x.i === s.i && x.tense !== s.tense));
+      const wrong = [...sameT.slice(0, 2), ...otherT.slice(0, 1)];
+      return {s, answerText: s.ch, opts: shuffle([{label: s.ch, ok: true}, ...wrong.map(w => ({label: w.ch, ok: false}))])};
+    });
+  }else if(mode === "fill"){
+    qs = shuffle(VS).slice(0, 10).map(s => {
+      const forms = s.tense === "pres" ? s.v.pres : AUX[s.v.aux].ch;
+      const correct = forms[s.i];
+      return {s, answerText: s.ch, opts: shuffle([...new Set(forms)].map(f => ({label: f, ok: f === correct})))};
+    });
+  }else if(mode === "listen"){
+    const pool = [...shuffle(SENTS).slice(0, 5).map(s => ({s, c: 1})), ...shuffle(VS).slice(0, 5).map(s => ({s, c: 0}))];
+    qs = shuffle(pool).map(({s, c}) => {
+      const wrong = c ? shuffle(SENTS.filter(x => x.zh !== s.zh)).slice(0, 3)
+                      : shuffle(VS.filter(x => x.v === s.v && x.tense === s.tense && x.i !== s.i)).slice(0, 3);
+      return {s, answerText: s.zh, opts: shuffle([{label: s.zh, ok: true}, ...wrong.map(w => ({label: w.zh, ok: false}))])};
+    });
+  }else{
+    const pool = [...shuffle(SENTS).slice(0, 6), ...shuffle(VS).slice(0, 4)];
+    qs = shuffle(pool).map(s => {
+      const words = s.ch.replace(/[.?!]$/, "").split(" ");
+      let tiles = words.map((x, id) => ({id, x})), tries = 0;
+      do { tiles = shuffle(tiles); tries++; } while(words.length > 1 && tiles.every((t, k) => t.id === k) && tries < 6);
+      return {s, target: words.join(" "), punct: s.ch.slice(-1), tiles, picked: [], answerText: s.ch};
+    });
+  }
+  SQ = {mode, qs, i: 0, score: 0, answered: false, missed: []};
+  renderSQ(document.getElementById("sbody"));
+}
+const SQ_NAMES = {choose:"看中文選句子", fill:"填空選動詞", listen:"聽句子選意思", order:"排單字成句"};
+function renderSQ(el){
+  if(!SQ){
+    el.innerHTML = `
+      <p class="deck-note">每回 10 題，四種題型。</p>
+      <div class="sqmodes">
+        <button type="button" class="btn" data-sstart="choose">看中文選句子<small>選出動詞變化和人稱都正確的句子</small></button>
+        <button type="button" class="btn ghost" data-sstart="fill">填空選動詞<small>把空格填上正確的動詞形式</small></button>
+        <button type="button" class="btn ghost" data-sstart="listen">聽句子選意思<small>聽方言錄音，選出中文意思</small></button>
+        <button type="button" class="btn ghost" data-sstart="order">排單字成句<small>把打亂的單字排成正確的語序</small></button>
+      </div>`;
+    return;
+  }
+  if(SQ.i >= SQ.qs.length){
+    el.innerHTML = `
+      <div class="result">
+        <div class="score lat">${SQ.score}/${SQ.qs.length}</div>
+        <p>${SQ.score === SQ.qs.length ? "全對。" : "答錯的句子："}</p>
+        ${SQ.missed.length ? `<div class="ex-group" style="text-align:left">${SQ.missed.map(s => `
+          <div class="ex">${playBtn(s.ch, "small")}<span class="ch" lang="gsw">${s.ch}</span><span class="gl">${s.zh}</span></div>`).join("")}</div>` : ""}
+        <div class="actions">
+          <button type="button" class="btn" data-sstart="${SQ.mode}">再練一回</button>
+          <button type="button" class="btn ghost" data-sreset>換題型</button>
+        </div>
+      </div>`;
+    return;
+  }
+  const q = SQ.qs[SQ.i], s = q.s;
+  let body = "";
+  if(SQ.mode === "choose"){
+    body = `<div class="qipa" style="margin:0">${TENSE_NAME[s.tense] || ""}</div>
+      <div class="qsent">${s.zh}</div>
+      <div class="opts one">${q.opts.map((o, k) => `<button type="button" class="opt lat" data-sopt="${k}">${o.label}</button>`).join("")}</div>`;
+  }else if(SQ.mode === "fill"){
+    const blank = s.tokens.map((a, j) => j === 1 ? `<span class="blank">＿＿＿</span>` : a.x).join(" ") + ".";
+    body = `<div class="qipa" style="margin:0">${TENSE_NAME[s.tense]}，${s.zh}</div>
+      <div class="qsent lat" lang="gsw">${blank}</div>
+      <div class="opts">${q.opts.map((o, k) => `<button type="button" class="opt lat" data-sopt="${k}">${o.label}</button>`).join("")}</div>`;
+  }else if(SQ.mode === "listen"){
+    body = `<div class="qword">${playBtn(s.ch, "big")}<span class="qsent" id="slisten">？</span></div>
+      <div class="qipa">先聽，再選意思</div>
+      <div class="opts one">${q.opts.map((o, k) => `<button type="button" class="opt" data-sopt="${k}">${o.label}</button>`).join("")}</div>`;
+  }else{
+    const pool = q.tiles.filter(t => !q.picked.includes(t.id));
+    body = `<div class="qsent">${s.zh}</div>
+      <div class="qipa" style="margin-bottom:8px">${TENSE_NAME[s.tense] || "依序點選單字"}</div>
+      <div class="tilebox"><div class="tiles" id="sans">${q.picked.length ? q.picked.map(id => {
+        const t = q.tiles.find(x => x.id === id); return `<button type="button" class="tile picked" data-untile="${id}"${SQ.answered ? " disabled" : ""}>${t.x}</button>`;
+      }).join("") : `<span style="color:var(--stone)">點下面的單字，依序排進來</span>`}</div></div>
+      <div class="tiles">${pool.map(t => `<button type="button" class="tile" data-tile="${t.id}"${SQ.answered ? " disabled" : ""}>${t.x}</button>`).join("")}</div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button type="button" class="btn" data-tilecheck ${(SQ.answered || q.picked.length !== q.tiles.length) ? "disabled" : ""}>檢查</button>
+        <button type="button" class="btn ghost" data-tilereset ${SQ.answered ? "disabled" : ""}>重排</button>
+      </div>`;
+  }
+  el.innerHTML = `
+    <div class="qhead"><span>${SQ_NAMES[SQ.mode]}，第 ${SQ.i + 1} 題，共 ${SQ.qs.length} 題</span><span>答對 ${SQ.score}</span></div>
+    <div class="progress"><span style="width:${SQ.i / SQ.qs.length * 100}%"></span></div>
+    ${body}
+    <div class="feedback" id="sfb"></div>
+    <button type="button" class="btn" id="snext" hidden>下一題</button>`;
+  if(SQ.mode === "listen" && !SQ.answered) setTimeout(() => speak(s.ch), 150);
+}
+function finishSQ(ok, msg){
+  const q = SQ.qs[SQ.i];
+  SQ.answered = true;
+  if(ok) SQ.score++; else SQ.missed.push(q.s);
+  document.getElementById("sfb").innerHTML = msg;
+  const n = document.getElementById("snext");
+  n.hidden = false; n.textContent = SQ.i === SQ.qs.length - 1 ? "看結果" : "下一題"; n.focus();
+  speak(q.s.ch);
+}
+document.getElementById("view-sentences").addEventListener("click", e => {
+  const t = e.target;
+  if(t.closest("[data-say]")){ seqId++; return; }
+  let b;
+  if((b = t.closest("[data-smode]"))){ smode = b.dataset.smode; SQ = null; renderSentences(); return; }
+  if((b = t.closest("[data-scat]"))){ scat = b.dataset.scat; renderSentences(); return; }
+  if((b = t.closest("[data-verb]"))){ vid = b.dataset.verb; renderSentences(); return; }
+  if((b = t.closest("[data-tense]"))){ tense = b.dataset.tense; renderSentences(); return; }
+  if(t.closest("[data-playall]")){
+    const v = VERBS.find(x => x.id === vid);
+    speakSeq(PERSONS.map((_, i) => buildS(v, i, tense).ch)); return;
+  }
+  if((b = t.closest("[data-sstart]"))){ startSQ(b.dataset.sstart); return; }
+  if(t.closest("[data-sreset]")){ SQ = null; renderSentences(); return; }
+  if(!SQ) return;
+  if(t.id === "snext"){ SQ.i++; SQ.answered = false; renderSQ(document.getElementById("sbody")); return; }
+  const q = SQ.qs[SQ.i];
+  if((b = t.closest("[data-sopt]")) && !SQ.answered){
+    const k = Number(b.dataset.sopt), ok = q.opts[k].ok;
+    document.querySelectorAll("[data-sopt]").forEach((x, j) => {
+      x.disabled = true;
+      if(q.opts[j].ok) x.classList.add("right"); else if(x === b) x.classList.add("wrong");
+    });
+    if(SQ.mode === "listen") document.getElementById("slisten").textContent = q.s.ch;
+    finishSQ(ok, ok ? "答對了。" : `正確答案是「${q.answerText}」。`);
+    return;
+  }
+  if(SQ.mode === "order" && !SQ.answered){
+    if((b = t.closest("[data-tile]"))){ q.picked.push(Number(b.dataset.tile)); renderSQ(document.getElementById("sbody")); return; }
+    if((b = t.closest("[data-untile]"))){ q.picked = q.picked.filter(id => id !== Number(b.dataset.untile)); renderSQ(document.getElementById("sbody")); return; }
+    if(t.closest("[data-tilereset]")){ q.picked = []; renderSQ(document.getElementById("sbody")); return; }
+    if(t.closest("[data-tilecheck]")){
+      const got = q.picked.map(id => q.tiles.find(x => x.id === id).x).join(" ");
+      const ok = got === q.target;
+      renderSQ(document.getElementById("sbody"));
+      SQ.answered = true;
+      document.querySelectorAll(".tile").forEach(x => x.disabled = true);
+      document.querySelectorAll("[data-tilecheck],[data-tilereset]").forEach(x => x.disabled = true);
+      document.querySelectorAll("#sans .tile").forEach(x => x.classList.add(ok ? "right" : "wrong"));
+      finishSQ(ok, ok ? "答對了。" : `正確語序是「${q.answerText}」。`);
+      return;
+    }
+  }
+});
+
+/* ---------- 路由 ---------- */
+const VIEWS = ["vocab","sentences","grammar","practice"];
+function route(){
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "vocab";
+  VIEWS.forEach(x => document.getElementById("view-"+x).hidden = x !== v);
+  document.querySelectorAll("nav.tabs a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === "#"+v));
+  document.querySelectorAll("nav.tabs a[aria-current]").forEach(a => a.setAttribute("aria-current","page"));
+  seqId++; stopAll();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+
+let toastT;
+function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove("show"), 2600); }
+
+renderHero(); renderDeckNote(); renderChips(); renderList(); renderLessons(); renderQuiz(); renderSentences(); route();
+renderVoiceNote(); pickVoice(); fetchClips();
+if("speechSynthesis" in window) speechSynthesis.onvoiceschanged = pickVoice;
+</script>
+</body>
+</html>
