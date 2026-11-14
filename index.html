@@ -1795,7 +1795,8 @@ const NCOLS = ["id","title","body","tags","createdAt","updatedAt","deleted"];
 let BANK = load(BANK_KEY, null) || {};
 BANK.words = BANK.words || []; BANK.notes = BANK.notes || [];
 BANK.since = BANK.since || 0; BANK.lastSync = BANK.lastSync || 0;
-let SYNC_CFG = load(CFG_KEY, null) || {url: "", secret: ""};
+let SYNC_CFG = load(CFG_KEY, null) || {url: "", enabled: false};
+if(SYNC_CFG.secret !== undefined){ SYNC_CFG.enabled = !!SYNC_CFG.url; delete SYNC_CFG.secret; }
 if(!SYNC_CFG.url && DEFAULT_SYNC_URL) SYNC_CFG.url = DEFAULT_SYNC_URL;
 let mtab = "words", mfilter = "all", mtag = "", mq = "", nq = "", medit = null, RV = null, rvDir = "zh";
 const syncState = {busy: false, error: "", timer: null};
@@ -1860,7 +1861,7 @@ async function autoPinyin(zh){
 
 /* ---------- 畫面 ---------- */
 function badgeText(){
-  if(!syncConfigured()) return "未設定同步（資料只存在這個瀏覽器）";
+  if(!syncConfigured()) return SYNC_CFG.url ? "同步未啟用（資料只存在這個瀏覽器）" : "未設定同步（資料只存在這個瀏覽器）";
   if(syncState.busy) return "同步中…";
   if(syncState.error) return "同步失敗：" + syncState.error;
   const n = dirtyCount();
@@ -2021,18 +2022,18 @@ function rvGrade(ok){
 }
 
 /* 同步設定與備份 */
-function syncConfigured(){ return !!(SYNC_CFG.url && SYNC_CFG.secret); }
+function syncConfigured(){ return !!(SYNC_CFG.url && SYNC_CFG.enabled); }
 function mSync(el){
+  const on = syncConfigured();
   el.innerHTML = `<div class="mset">
-    <p class="deck-note">把資料同步到你自己的 Google 試算表。網址和密碼只存在這個瀏覽器，不會上傳到 GitHub。</p>
+    <p class="deck-note">把資料同步到你自己的 Google 試算表。這台裝置目前：<b>${on ? "已啟用同步" : "未啟用同步"}</b>。</p>
     <label for="s-url">Apps Script 網址（結尾是 /exec）</label>
     <input id="s-url" value="${hx(SYNC_CFG.url)}" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
-    <label for="s-secret">密碼（Code.gs 裡的 SECRET）</label>
-    <input id="s-secret" type="password" value="${hx(SYNC_CFG.secret)}" autocomplete="off">
-    <div class="btnrow"><button type="button" class="btn" data-ssave>儲存並測試連線</button>
+    <div class="btnrow"><button type="button" class="btn" data-ssave>${on ? "重新測試連線" : "啟用同步並測試連線"}</button>
       <button type="button" class="btn ghost" data-ssync>立即同步</button>
-      <button type="button" class="btn ghost" data-sclear>清除設定</button></div>
+      <button type="button" class="btn ghost" data-sclear>停用同步</button></div>
     <div class="feedback" id="s-msg"></div>
+    <p class="deck-note">這個版本沒有密碼：任何知道這串網址、並在自己的瀏覽器按下「啟用同步」的人，都能讀取和修改這份試算表。請不要把網址分享給別人。</p>
     <hr style="border:none;border-top:1px solid var(--line);width:100%">
     <p class="deck-note">備份：把字庫和筆記存成檔案，或從檔案還原（會和現有資料合併，較新的為準）。</p>
     <div class="btnrow"><button type="button" class="btn ghost" data-bexport>匯出備份</button>
@@ -2050,11 +2051,11 @@ function urlProblem(u){
 async function callScript(payload){
   let resp;
   try{
-    resp = await fetch(SYNC_CFG.url, {method: "POST", headers: {"Content-Type": "text/plain;charset=utf-8"}, body: JSON.stringify(Object.assign({secret: SYNC_CFG.secret}, payload))});
+    resp = await fetch(SYNC_CFG.url, {method: "POST", headers: {"Content-Type": "text/plain;charset=utf-8"}, body: JSON.stringify(payload)});
   }catch(e){ throw new Error("連不上（網址不對、沒有網路，或部署權限不是「任何人」）"); }
   let data;
   try{ data = await resp.json(); }catch(e){ throw new Error("回傳的不是資料，請確認部署時「誰可以存取」選的是「任何人」"); }
-  if(!data.ok) throw new Error(data.error === "unauthorized" ? "密碼不正確" : data.error === "server_not_configured" ? "試算表端還沒設定密碼（Code.gs 的 SECRET）" : String(data.error));
+  if(!data.ok) throw new Error(String(data.error));
   return data;
 }
 function mergeIn(local, incoming, cols){
@@ -2164,16 +2165,15 @@ document.getElementById("view-mine").addEventListener("click", async e => {
   if(t.closest("[data-rvbad]")){ rvGrade(false); return; }
   if(t.closest("[data-rvend]")){ RV = null; renderMine(); return; }
   if(t.closest("[data-ssave]")){
-    const url = document.getElementById("s-url").value.trim(), secret = document.getElementById("s-secret").value.trim();
+    const url = document.getElementById("s-url").value.trim();
     const p = urlProblem(url); if(p){ sMsg(p, true); return; }
-    if(!secret){ sMsg("請填密碼", true); return; }
-    SYNC_CFG = {url, secret}; save(CFG_KEY, SYNC_CFG); sMsg("測試連線中…");
-    try{ await callScript({action: "ping"}); sMsg("連線成功，正在第一次同步…"); updateBadge(); syncNow(); }
-    catch(err){ sMsg(err.message, true); }
+    const prev = SYNC_CFG; SYNC_CFG = {url, enabled: true}; sMsg("測試連線中…");
+    try{ await callScript({action: "ping"}); save(CFG_KEY, SYNC_CFG); sMsg("連線成功，正在第一次同步…"); renderMine(); sMsg("連線成功，正在第一次同步…"); syncNow(); }
+    catch(err){ SYNC_CFG = prev; sMsg(err.message, true); }
     return;
   }
-  if(t.closest("[data-ssync]")){ if(!syncConfigured()){ sMsg("還沒設定網址和密碼", true); return; } sMsg("同步中…"); syncNow(); return; }
-  if(t.closest("[data-sclear]")){ SYNC_CFG = {url: "", secret: ""}; save(CFG_KEY, SYNC_CFG); renderMine(); sMsg("已清除設定（字庫資料還在這個瀏覽器裡）"); return; }
+  if(t.closest("[data-ssync]")){ if(!syncConfigured()){ sMsg("這台裝置還沒啟用同步", true); return; } sMsg("同步中…"); syncNow(); return; }
+  if(t.closest("[data-sclear]")){ SYNC_CFG.enabled = false; save(CFG_KEY, SYNC_CFG); renderMine(); sMsg("已停用同步（字庫資料還留在這個瀏覽器裡）"); return; }
   if(t.closest("[data-bexport]")){ exportBackup(); return; }
 });
 document.getElementById("view-mine").addEventListener("input", e => {
