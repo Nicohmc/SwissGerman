@@ -213,6 +213,9 @@ body.audit .play[data-src="tts"]{outline:3px dashed #E8731A;outline-offset:2px}
 .csw{display:flex;align-items:center;gap:8px;color:var(--stone);font-size:14px;margin-top:4px;flex-wrap:wrap}
 .opt .chz{font-size:24px}
 .cnote{color:var(--stone);font-size:14px;line-height:1.45}
+.optrow{display:flex;gap:8px;align-items:stretch}
+.optrow .opt{flex:1;min-width:0}
+.optrow .play{align-self:center}
 
 /* mine */
 .starbtn{border:none;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--stone);padding:0 4px;vertical-align:middle}
@@ -1895,7 +1898,7 @@ function cQuiz(el){
       <div class="opts one">${q.opts.map((o, k) => `<button type="button" class="opt" data-copt="${k}">${o.it.en}</button>`).join("")}</div>`;
   }else if(m === "en2zh"){
     body = `<div class="qsent" lang="en">${it.en}</div>
-      <div class="opts">${q.opts.map((o, k) => `<button type="button" class="opt" data-copt="${k}"><span class="chz" lang="zh-TW">${o.it.zh}</span><small class="cpy" style="display:block">${PY[o.it.zh] || ""}</small></button>`).join("")}</div>`;
+      <div class="opts">${q.opts.map((o, k) => `<div class="optrow"><button type="button" class="opt" data-copt="${k}"><span class="chz" lang="zh-TW">${o.it.zh}</span><small class="cpy" style="display:block">${PY[o.it.zh] || ""}</small></button>${zhBtn(o.it.zh, "")}</div>`).join("")}</div>`;
   }else{
     body = `<div class="qword">${zhBtn(it.zh, "big")}<span class="chzbig" id="clisten">?</span></div>
       <div class="qipa cpy" id="clisten2">Listen, then choose the meaning.</div>
