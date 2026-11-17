@@ -920,13 +920,13 @@ function pickVoice(){
 function renderVoiceNote(){
   const el = document.getElementById("voiceNote");
   if(CLIPS === null){
-    el.innerHTML = "方言錄音載入中（檔案較大，第一次開啟會慢一點）…";
+    el.innerHTML = "方言錄音載入中…";
     return;
   }
-  const n = Object.keys(loadClips()).length;
+  const n = clipCount();
   let s = n
     ? `<b>紅色按鈕</b>播放 Suisse Speech 合成的<b>蘇黎世方言</b>發音（共 ${n} 段，是用方言字詞和文法合成，不是標準德語加瑞士腔）。`
-    : "沒有載入方言錄音，紅色按鈕目前使用瀏覽器語音，發音不是真正的方言。";
+    : "沒有載入方言錄音（" + (CLIPS_ERR || "原因不明") + "），紅色按鈕目前使用瀏覽器語音，發音不是真正的方言。 <button type=\"button\" class=\"mini\" data-clipsretry>重新載入錄音</button>";
   if(!("speechSynthesis" in window)){
     s += " <b>灰色按鈕</b>（標準德語）需要瀏覽器語音，這個瀏覽器不支援，請改用 Chrome、Edge 或 Safari。";
   }else if(stdVoice){
@@ -939,30 +939,126 @@ function renderVoiceNote(){
     : " <b>綠色按鈕</b>（中文）找不到台灣國語（zh-TW）語音，請在系統設定安裝，或改用 Safari / Edge。";
   el.innerHTML = s;
 }
-let CLIPS = null, curAudio = null;
+let CLIPS = null, curAudio = null;          /* CLIPS：已載入的錄音（字 → base64）；null 表示索引還在載入 */
+let CLIP_INDEX = null, CLIP_FILES = [], CLIP_N = 0;   /* 新格式：字 → 第幾個分包；舊格式（單一檔案）時 CLIP_INDEX 是 null */
+let chunkDone = {}, chunkLoading = {}, speakToken = 0;
 function loadClips(){ return CLIPS || {}; }
-function fetchClips(){
-  fetch("swiss-audio.json")
-    .then(r => { if(!r.ok) throw new Error("http " + r.status); return r.json(); })
-    .then(d => { CLIPS = d.clips || d; })
-    .catch(() => { CLIPS = {}; })
-    .then(() => { renderVoiceNote(); renderSentences(); if(auditOn) auditScan(); });
+const hasClip = k => CLIP_INDEX ? Object.prototype.hasOwnProperty.call(CLIP_INDEX, k) : !!(CLIPS && CLIPS[k]);
+const clipCount = () => CLIP_N;
+function recountClips(){ CLIP_N = CLIP_INDEX ? Object.keys(CLIP_INDEX).length : Object.keys(CLIPS || {}).length; }
+let CLIPS_ERR = "", clipsLoading = false;
+async function fetchClips(){
+  if(clipsLoading) return;
+  clipsLoading = true; CLIPS_ERR = "";
+  let lastErr = "";
+  for(let attempt = 1; attempt <= 4; attempt++){
+    try{
+      const opt = attempt > 1 ? {cache: "reload"} : {};
+      let r = await fetch("swiss-audio-index.json", opt);
+      if(r.ok){                                   /* 新格式：只先讀小小的索引，錄音用到時才分批下載 */
+        const idx = await r.json();
+        if(!idx || !idx.map || !Array.isArray(idx.chunks) || !Object.keys(idx.map).length) throw new Error("swiss-audio-index.json 的內容不完整");
+        CLIP_INDEX = idx.map; CLIP_FILES = idx.chunks; CLIPS = {}; lastErr = ""; break;
+      }
+      if(r.status !== 404) throw new Error("伺服器回應 HTTP " + r.status);
+      r = await fetch("swiss-audio.json", opt);   /* 舊格式：一個大檔案 */
+      if(!r.ok) throw new Error(r.status === 404
+        ? "找不到錄音檔（swiss-audio-index.json 和 swiss-audio.json 都是 HTTP 404）：請確認它們和 index.html 在儲存庫的同一層，檔名全小寫"
+        : "伺服器回應 HTTP " + r.status);
+      const t = await r.text();
+      let d;
+      try{ d = JSON.parse(t); }catch(e){ throw new Error("檔案內容不是正確的 JSON（收到 " + (t.length / 1e6).toFixed(1) + " MB），可能上傳不完整"); }
+      const c = d && (d.clips || d);
+      if(!c || !Object.keys(c).length) throw new Error("檔案裡沒有任何錄音");
+      CLIP_INDEX = null; CLIPS = c; lastErr = ""; break;
+    }catch(e){
+      lastErr = (e instanceof TypeError) ? "網路連線中斷或被擋住（" + e.message + "）" : ((e && e.message) || String(e));
+      if(attempt < 4) await new Promise(res => setTimeout(res, attempt * 2500));
+    }
+  }
+  if(CLIPS === null){ CLIPS = {}; CLIP_INDEX = null; CLIPS_ERR = lastErr || "原因不明"; }
+  recountClips();
+  clipsLoading = false;
+  renderVoiceNote(); renderSentences(); if(auditOn) auditScan();
+  if(CLIP_INDEX) startPrefetch();
+}
+function retryClips(){
+  if(clipsLoading) return;
+  CLIPS = null; CLIP_INDEX = null; CLIP_N = 0; chunkDone = {}; chunkLoading = {};
+  toast("重新載入錄音中…"); renderVoiceNote(); if(auditOn) auditScan(); fetchClips();
+}
+document.addEventListener("click", e => { if(e.target.closest("[data-clipsretry]")) retryClips(); });
+document.addEventListener("visibilitychange", () => {
+  if(!document.hidden && CLIPS && clipCount() === 0 && !clipsLoading) retryClips();
+});
+window.addEventListener("online", () => { if(CLIPS && clipCount() === 0 && !clipsLoading) retryClips(); });
+
+/* 新格式：用到哪一包才下載哪一包（每包約 1 MB），下載過的會暫存在記憶體，瀏覽器也會快取 */
+function ensureChunk(id){
+  if(!CLIP_INDEX || chunkDone[id]) return Promise.resolve();
+  if(chunkLoading[id]) return chunkLoading[id];
+  const file = CLIP_FILES[id];
+  chunkLoading[id] = (async () => {
+    let err;
+    for(let a = 1; a <= 3; a++){
+      try{
+        const r = await fetch(file, a > 1 ? {cache: "reload"} : {});
+        if(!r.ok) throw new Error("HTTP " + r.status);
+        Object.assign(CLIPS, await r.json()); chunkDone[id] = true; return;
+      }catch(e){ err = e; if(a < 3) await new Promise(res => setTimeout(res, a * 1200)); }
+    }
+    throw err;
+  })();
+  chunkLoading[id].then(() => { delete chunkLoading[id]; }, () => { delete chunkLoading[id]; });
+  return chunkLoading[id];
+}
+let prefetchObs = null, prefetchTimer = null, prefetchBusy = false;
+async function prefetchVisible(){      /* 在背景先下載目前這一頁會用到的錄音 */
+  if(!CLIP_INDEX || prefetchBusy || document.hidden) return;
+  if(navigator.connection && navigator.connection.saveData) return;
+  const view = document.querySelector(".view:not([hidden])"); if(!view) return;
+  const need = [], seen = new Set();
+  view.querySelectorAll(".play[data-say]").forEach(b => {
+    if(b.dataset.zh === "1" || b.dataset.std === "1") return;
+    const id = CLIP_INDEX[b.dataset.say];
+    if(id !== undefined && !chunkDone[id] && !seen.has(id)){ seen.add(id); need.push(id); }
+  });
+  prefetchBusy = true;
+  try{ for(const id of need.slice(0, 8)){ if(document.hidden) break; await ensureChunk(id).catch(() => {}); } }
+  finally{ prefetchBusy = false; }
+}
+function prefetchSchedule(){ clearTimeout(prefetchTimer); prefetchTimer = setTimeout(prefetchVisible, 400); }
+function startPrefetch(){
+  if(!prefetchObs){
+    prefetchObs = new MutationObserver(prefetchSchedule);
+    prefetchObs.observe(document.querySelector("main"), {childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"]});
+  }
+  prefetchSchedule();
 }
 function stopAll(){
   if(curAudio){ try{ curAudio.pause(); }catch(e){} curAudio = null; }
   if("speechSynthesis" in window) speechSynthesis.cancel();
 }
+function playClip(clip, text, done){
+  const a = new Audio("data:audio/mpeg;base64," + clip);
+  a.preservesPitch = true;
+  a.playbackRate = rate / 0.9;
+  if(done) a.onended = done;
+  curAudio = a;
+  a.play().catch(() => { curAudio = null; speakSynth(text, false, done); });
+}
 function speak(text, std=false, done=null){
   stopAll();
+  const my = ++speakToken;
   if(!std){
-    const clip = loadClips()[text];
-    if(clip){
-      const a = new Audio("data:audio/mpeg;base64," + clip);
-      a.preservesPitch = true;
-      a.playbackRate = rate / 0.9;
-      if(done) a.onended = done;
-      curAudio = a;
-      a.play().catch(() => { curAudio = null; speakSynth(text, false, done); });
+    const clip = CLIPS && CLIPS[text];
+    if(clip){ playClip(clip, text, done); return; }
+    if(CLIP_INDEX && hasClip(text)){            /* 錄音在還沒下載的分包裡：先下載，下載完立刻播放 */
+      const t = setTimeout(() => toast("載入錄音中…"), 700);
+      ensureChunk(CLIP_INDEX[text]).then(() => {
+        clearTimeout(t); if(my !== speakToken) return;
+        const c = CLIPS[text]; c ? playClip(c, text, done) : speakSynth(text, false, done);
+      }).catch(() => { clearTimeout(t); if(my === speakToken){ toast("錄音下載失敗，改用瀏覽器語音"); speakSynth(text, false, done); } });
       return;
     }
   }
@@ -1281,8 +1377,8 @@ function speakSeq(keys){
   next();
 }
 function clipCoverage(){
-  const c = loadClips(), keys = new Set([...SENTS.map(s => s.ch), ...VS.map(s => s.ch)]);
-  let m = 0; keys.forEach(k => { if(!c[k]) m++; });
+  const keys = new Set([...SENTS.map(s => s.ch), ...VS.map(s => s.ch)]);
+  let m = 0; keys.forEach(k => { if(!hasClip(k)) m++; });
   return {m, total: keys.size};
 }
 const tokHtml = r => r.tokens.map(a => a.v ? `<b>${a.x}</b>` : a.x).join(" ") + ".";
@@ -2353,18 +2449,19 @@ let auditOn = false, auditObs = null, auditTimer = null;
 function auditScan(){
   const bar = document.getElementById("auditbar"), view = document.querySelector(".view:not([hidden])");
   if(!bar || !view) return;
-  const clips = loadClips(); let rec = 0, tts = 0; const miss = new Set();
+  let rec = 0, tts = 0; const miss = new Set();
   view.querySelectorAll(".play[data-say]").forEach(b => {
     if(b.dataset.zh === "1"){ b.dataset.src = "zh"; return; }
     if(b.dataset.std === "1"){ b.dataset.src = "std"; return; }
-    if(clips[b.dataset.say]){ b.dataset.src = "rec"; rec++; } else { b.dataset.src = "tts"; tts++; miss.add(b.dataset.say); }
+    if(hasClip(b.dataset.say)){ b.dataset.src = "rec"; rec++; } else { b.dataset.src = "tts"; tts++; miss.add(b.dataset.say); }
   });
   let t;
   if(CLIPS === null) t = "錄音檔還在載入…";
-  else if(!Object.keys(CLIPS).length) t = "沒有載入到 swiss-audio.json，所有紅色按鈕都會改用瀏覽器語音。請確認它和 index.html 放在同一個位置。";
+  else if(clipCount() === 0) t = "沒有載入到錄音檔（原因：" + (CLIPS_ERR || "原因不明") + "）。所有紅色按鈕都會改用瀏覽器語音。";
   else t = "這一頁的瑞士德語（紅色）按鈕：" + rec + " 個用你生成的錄音（綠色實線框），" + tts + " 個用瀏覽器語音（橘色虛線框）。" +
-    (tts ? " 沒有錄音的：" + [...miss].slice(0, 6).join("、") + (miss.size > 6 ? "…" : "") : "");
-  bar.textContent = t;
+    (tts ? " 沒有錄音的：" + [...miss].slice(0, 6).join("、") + (miss.size > 6 ? "…" : "") : "") +
+    (CLIP_INDEX ? "（錄音分成 " + CLIP_FILES.length + " 包，已下載 " + Object.keys(chunkDone).length + " 包）" : "");
+  bar.innerHTML = hx(t) + (CLIPS && clipCount() === 0 ? ' <button type="button" class="mini" data-clipsretry>重新載入錄音</button>' : "");
 }
 function auditSchedule(){ clearTimeout(auditTimer); auditTimer = setTimeout(auditScan, 120); }
 function setAudit(on){
